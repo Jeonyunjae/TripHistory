@@ -292,6 +292,22 @@ ol.plan{margin-top:2px}
 .themebtn{display:inline-flex;align-items:center;gap:6px} .themebtn svg{width:15px;height:15px;flex:none}
 .hlabel{display:inline-flex;align-items:center;gap:3px} .hlabel svg{width:13px;height:13px}
 .round,.stepbtn{display:flex;align-items:center;justify-content:center;padding:0}
+.spd2{display:none}
+@media (max-width:959px){
+  /* map controls: three equal buttons; speed lives in the time bar */
+  .camctl{left:12px;right:12px;bottom:10px;padding:3px;border-radius:10px}
+  .camctl .pill{flex:1;min-height:36px;padding:0 4px;font-size:12.5px}
+  .camctl #speed{display:none}
+  /* time bar: track on its own row, controls centred below */
+  .timebar{display:grid!important;grid-template-columns:1fr auto 1fr;grid-template-areas:"track track track" "clock trio speed";align-items:center;row-gap:2px;column-gap:8px;padding:6px 14px 10px}
+  .timebar .track{grid-area:track;height:34px}
+  .timebar .trio{grid-area:trio;gap:10px}
+  .timebar .clock{grid-area:clock;justify-self:start;font-size:18px!important;min-width:0}
+  .timebar .clock small.tz{display:inline!important}
+  .spd2{grid-area:speed;justify-self:end;display:inline-flex;align-items:center;min-height:34px;padding:0 12px;border:1px solid #D8DFE8;border-radius:17px;background:#FFFFFF;color:#1F2A44;font-size:12.5px;font-weight:700}
+  .track .rail,.track .fill{top:12px} .track .tk{top:10px} .track .tk.warn,.track .tk.bad{top:8px} .track .hd{top:7px} .track .hr{top:22px}
+  .track .hr:nth-of-type(even){display:block!important}
+}
 @media (max-width:959px){
   .sheet:not(.open) .handle{display:none}
   .sheet:not(.open){padding-bottom:0;background:transparent}
@@ -379,6 +395,7 @@ a.btn,button.btn{min-height:40px;padding:8px 14px;font-size:14px;justify-content
         <div class="trio"><button class="stepbtn" id="prevStop" aria-label="이전 장소"></button><button class="round" id="play" aria-label="일시정지">❚❚</button><button class="stepbtn" id="nextStop" aria-label="다음 장소"></button></div>
         <span class="clock" id="clock">00:00</span>
         <div class="track" id="track" role="slider" tabindex="0" aria-label="시각"></div>
+        <button class="spd2" id="speed2" aria-label="재생 속도 바꾸기">느리게</button>
       </div>
     </section>
     <aside class="sheet" id="sheet">
@@ -1022,7 +1039,8 @@ trk.addEventListener('pointerdown',e=>{ tDown=true; trk.setPointerCapture(e.poin
 trk.addEventListener('pointermove',e=>{ if(tDown) trackSet(e); });
 trk.addEventListener('pointerup',()=>{ tDown=false; }); trk.addEventListener('pointercancel',()=>{ tDown=false; });
 trk.addEventListener('keydown',e=>{ const st={ArrowLeft:-5,ArrowDown:-5,ArrowRight:5,ArrowUp:5,PageDown:-30,PageUp:30}[e.key]; if(st==null) return; e.preventDefault(); S.live=false; syncLive(); S.t=Math.max(TR.min,Math.min(TR.max,S.t+st)); syncTrack(); });
-const SPEEDS=[[1,'느리게'],[4,'보통'],[15,'빠르게']]; $('speed').addEventListener('click',()=>{ const i=(SPEEDS.findIndex(s=>s[0]===S.speed)+1)%SPEEDS.length; S.speed=SPEEDS[i][0]; $('speed').textContent='속도 '+SPEEDS[i][1]; });
+const SPEEDS=[[1,'느리게'],[4,'보통'],[15,'빠르게']]; $('speed').addEventListener('click',()=>{ const i=(SPEEDS.findIndex(s=>s[0]===S.speed)+1)%SPEEDS.length; S.speed=SPEEDS[i][0]; $('speed').textContent='속도 '+SPEEDS[i][1]; $('speed2').textContent=SPEEDS[i][1]; });
+$('speed2').addEventListener('click',()=>$('speed').click());
 $('follow').addEventListener('click',()=>{ S.follow=!S.follow; syncFollow(); flying=null; });
 $('overview').addEventListener('click',()=>{ flying={to:new THREE.Vector3(0,0,2),cam:new THREE.Vector3(0,74,80)}; S.follow=false; syncFollow(); });
 $('strip').addEventListener('click',()=>$('handle').click()); $('strip').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('handle').click(); } });
