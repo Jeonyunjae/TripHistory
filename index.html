@@ -293,6 +293,14 @@ ol.plan{margin-top:2px}
 .hlabel{display:inline-flex;align-items:center;gap:3px} .hlabel svg{width:13px;height:13px}
 .round,.stepbtn{display:flex;align-items:center;justify-content:center;padding:0}
 .spd2{display:none}
+/* shared (desktop too): speed lives in the time bar; track on its own row, playback centred below */
+.camctl #speed{display:none}
+.timebar{display:grid!important;grid-template-columns:1fr auto 1fr;grid-template-areas:"track track track" "clock trio speed";align-items:center;row-gap:2px;column-gap:10px;padding:6px 16px 10px}
+.timebar .track{grid-area:track;height:34px}
+.timebar .trio{grid-area:trio;gap:10px}
+.timebar .clock{grid-area:clock;justify-self:start}
+.spd2{grid-area:speed;justify-self:end;display:inline-flex;align-items:center;min-height:34px;padding:0 14px;border:1px solid #D8DFE8;border-radius:17px;background:#FFFFFF;color:#1F2A44;font-size:13px;font-weight:700}
+.track .rail,.track .fill{top:12px} .track .tk{top:10px} .track .tk.warn,.track .tk.bad{top:8px} .track .hd{top:7px} .track .hr{top:22px}
 @media (max-width:959px){
   /* map controls: three equal buttons; speed lives in the time bar */
   .camctl{left:12px;right:12px;bottom:10px;padding:3px;border-radius:10px}
