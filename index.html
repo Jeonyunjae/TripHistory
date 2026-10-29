@@ -154,6 +154,8 @@ function render(trips,source){
   $('src').textContent=source==='notion'?'노션 「여행 기록」에서 불러왔어요':'';
 }
 
+function logVisit(page,login){ try{ const k='visit:'+page, last=+localStorage.getItem(k)||0; if(!login&&Date.now()-last<30*60*1000) return; localStorage.setItem(k,Date.now()); }catch(e){}
+  fetch('/api/visit',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({page,login:!!login})}).catch(()=>{}); }
 async function me(){ try{ const r=await fetch('/api/me'); if(r.ok) return (await r.json()).who||''; if(r.status===401) return null; }catch(e){} return ''; }
 function login(){ return new Promise(res=>{ $('gate').hidden=false; $('gatePw').focus();
   $('gateForm').onsubmit=async e=>{ e.preventDefault(); const who=(document.querySelector('input[name=gateWho]:checked')||{}).value||'희주'; $('gateMsg').textContent='확인 중…';
@@ -162,7 +164,8 @@ function login(){ return new Promise(res=>{ $('gate').hidden=false; $('gatePw').
 
 const STATIC=JSON.parse($('trips-static').textContent);
 (async()=>{
-  let who=await me(); if(who===null) who=await login();
+  let who=await me(), fresh=false; if(who===null){ who=await login(); fresh=true; }
+  logVisit('홈',fresh);
   if(who) $('who').textContent=who+'로 들어왔어요';
   render(STATIC,'static');
   try{ const r=await fetch('/api/trips'); if(r.ok){ const j=await r.json(); if(j.trips&&j.trips.length) render(j.trips,j.source); } }catch(e){}

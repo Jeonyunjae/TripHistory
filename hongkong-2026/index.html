@@ -1412,10 +1412,12 @@ async function finishRecording(){
 }
 
 /* ---- storage: claude.ai capabilities inside the artifact, own API (/api, Notion) on the web service ---- */
-async function ensureLogin(){ try{ const r=await fetch('/api/me',{credentials:'same-origin'}); if(r.ok){ API_WHO=(await r.json()).who||''; return true; } if(r.status!==401) return false; }catch(e){ return false; }
+function logVisit(login){ try{ const k='visit:'+TRIP_KEY, last=+localStorage.getItem(k)||0; if(!login&&Date.now()-last<30*60*1000) return; localStorage.setItem(k,Date.now()); }catch(e){}
+  fetch('/api/visit',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({page:TRIP_KEY,login:!!login})}).catch(()=>{}); }
+async function ensureLogin(){ try{ const r=await fetch('/api/me',{credentials:'same-origin'}); if(r.ok){ API_WHO=(await r.json()).who||''; logVisit(false); return true; } if(r.status!==401) return false; }catch(e){ return false; }
   return new Promise(res=>{ const g=$('gate'); g.hidden=false; $('gatePw').focus();
     $('gateForm').onsubmit=async e=>{ e.preventDefault(); const who=(document.querySelector('input[name=gateWho]:checked')||{}).value||'희주'; $('gateMsg').textContent='확인 중…';
-      try{ const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:$('gatePw').value,who})}); if(r.ok){ API_WHO=who; g.hidden=true; res(true); } else $('gateMsg').textContent='비밀번호가 달라요'; }catch(err){ $('gateMsg').textContent='연결이 안 돼요. 잠시 후 다시 해주세요'; } }; }); }
+      try{ const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:$('gatePw').value,who})}); if(r.ok){ API_WHO=who; g.hidden=true; logVisit(true); res(true); } else $('gateMsg').textContent='비밀번호가 달라요'; }catch(err){ $('gateMsg').textContent='연결이 안 돼요. 잠시 후 다시 해주세요'; } }; }); }
 async function apiInit(){ if(!/^https?:/.test(location.protocol)) return null; if(!(await ensureLogin())) return null; API_MODE=true;
   const L={notes:[],notephotos:[],todos:[]}, KIND={notes:'note',notephotos:'photo',todos:'todo'}; let cache=[];
   const snap=n=>({docs:cache.filter(x=>x.kind===KIND[n]).map(x=>({id:n==='notes'?x.stopId:x.id,data:()=>n==='notes'?{text:x.text,at:x.at}:n==='notephotos'?{stopId:x.stopId,assetId:x.id,at:x.at}:{day:x.day,text:x.text,done:x.done,at:x.at}}))});

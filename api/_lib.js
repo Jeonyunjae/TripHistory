@@ -5,6 +5,7 @@ const NOTION_VERSION = '2026-03-11';
 
 // Notion data source IDs are not secrets; env vars override the defaults.
 export const DS = () => process.env.NOTION_DATA_SOURCE_ID || '67aca159-1980-4de2-b633-ae1afa0c8339';
+export const VISITS_DS = () => process.env.NOTION_VISITS_DATA_SOURCE_ID || '06f73b44-80f3-469b-9742-3d16930438c7';
 export const TRIPS_DS = () => process.env.NOTION_TRIPS_DATA_SOURCE_ID || 'e2e7678e-5204-4e34-8a51-f51ce46f3e2e';
 
 export async function notion(path, { method = 'GET', body } = {}) {
