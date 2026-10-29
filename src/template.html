@@ -285,8 +285,14 @@ ol.plan{margin-top:2px}
 @media (max-width:959px){ header.top .days{grid-template-columns:repeat(5,1fr)!important;gap:4px} .daybtn{padding:4px 2px;gap:4px;font-size:12.5px;justify-content:center} .daybtn .lb{min-width:22px;height:22px;font-size:12px} }
 @media (max-width:520px){ .daybtn .wd{display:none} }
 .whos{display:grid;gap:8px}
+/* page itself never pans sideways or pinch-zooms; only the 3D map takes pinch/drag */
+html,body{overflow-x:hidden;overscroll-behavior:none;touch-action:pan-y}
+.app,.sheet,.panel{touch-action:pan-y}
+button,a,input,select,label{touch-action:manipulation}
+#view canvas{touch-action:none}
 .themebtn{min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:18px;background:var(--paper);color:var(--ink);font-size:12.5px;font-weight:700;flex:none}
 .live{margin-left:auto}
+.live[hidden]+.themebtn{margin-left:auto}
 @media (max-width:959px){ header.top .themebtn{order:1} }
 .row.exp{flex-wrap:nowrap} .row.exp input{flex:1;min-width:0;min-height:42px;border:1px solid var(--line);border-radius:6px;padding:0 12px;background:var(--paper);color:var(--ink);font:inherit}
 .startbtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;display:flex;align-items:center;gap:10px;min-height:56px;padding:0 26px 0 18px;border:0;border-radius:28px;background:#1F2A44;color:#FFFFFF;font-family:var(--f-head);font-size:18px;font-weight:900;box-shadow:0 6px 24px rgba(31,42,68,.35)}
@@ -328,7 +334,7 @@ a.btn,button.btn{min-height:40px;padding:8px 14px;font-size:14px;justify-content
   <header class="top">
     <h1>홍콩 여행</h1>
     <nav class="days" id="days" aria-label="일차"></nav>
-    <span class="live" id="live">미리보기</span><button class="themebtn" id="themeBtn" aria-label="어두운 화면으로">어둡게</button>
+    <span class="live" id="live" hidden></span><button class="themebtn" id="themeBtn" aria-label="어두운 화면으로">어둡게</button>
   </header>
   <main>
     <section class="stage" aria-label="미니어처 홍콩 지도">
@@ -943,13 +949,15 @@ function frame(now){
 function findStop(id){ for(const d of DATA) for(const s of d.stops) if(s.id===id) return s; return null; }
 function syncPlay(){ const b=$('play'); b.textContent=S.playing?'❚❚':'▶'; b.setAttribute('aria-label',S.playing?'일시정지':'재생'); }
 function syncFollow(){ $('follow').setAttribute('aria-pressed',String(S.follow)); }
-function syncLive(){ const m=$('live'); m.className='live'+(S.live?' on':''); m.textContent=S.live?'● 실시간 홍콩 '+fmt(S.t):'미리보기'; }
+function syncLive(){ const m=$('live'); m.className='live'+(S.live?' on':''); m.hidden=!S.live; m.textContent=S.live?'● 실시간 홍콩 '+fmt(S.t):''; }
 function renderDays(){ $('days').innerHTML=DATA.map((d,i)=>`<button class="daybtn" style="--c:${DAYC[i]}" aria-pressed="${S.day===d.n}" data-day="${d.n}"><span class="lb">${d.n}</span>${d.date.slice(5).replace('-','.')}<span class="wd"> ${d.wd}</span></button>`).join(''); }
 $('days').addEventListener('click',e=>{ const b=e.target.closest('[data-day]'); if(!b) return; S.live=false; S.day=+b.dataset.day; S.t=dayStartT(S.day); hideStart(); S.sel=null; onDayChange(); syncLive(); });
 function camHome(){ const s0=scenePos(PLAN,S.day,S.t).pos; flying={to:new THREE.Vector3(s0.x,(s0.y||0)*.6,s0.z),cam:new THREE.Vector3(s0.x+4,camera.aspect<1?40:30,s0.z+(camera.aspect<1?44:34))}; }
 function onDayChange(){ document.documentElement.style.setProperty('--day',dayCol(S.day)); PLAN=getPlan(S.day); S.follow=true; syncFollow(); lastKor=null; if(!(S.day===1&&S.t<KSW)) camHome(); renderDays(); buildDay(S.day); renderPanel(true); renderTrack(); }
 function syncTheme(){ const d=document.documentElement.dataset.theme==='dark'; const b=$('themeBtn'); b.textContent=d?'밝게':'어둡게'; b.setAttribute('aria-label',d?'밝은 화면으로':'어두운 화면으로'); }
 $('themeBtn').addEventListener('click',()=>{ const r=document.documentElement; r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'; try{ localStorage.setItem('hk-theme',r.dataset.theme); }catch(e){} syncTheme(); }); syncTheme();
+['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>{ if(!e.target.closest||!e.target.closest('#view')) e.preventDefault(); },{passive:false}));
+document.addEventListener('touchmove',e=>{ if(e.touches&&e.touches.length>1&&!(e.target.closest&&e.target.closest('#view'))) e.preventDefault(); },{passive:false});
 function hideStart(){ const b=$('startBtn'); if(b) b.hidden=true; }
 $('startBtn').addEventListener('click',()=>{ hideStart(); if(!S.live){ S.t=dayStartT(S.day); } S.playing=true; syncPlay(); });
 $('play').addEventListener('click',()=>{ hideStart(); if(S.live){ S.live=false; syncLive(); } S.playing=!S.playing; syncPlay(); });
