@@ -1066,7 +1066,10 @@ function selectStop(id,fromMap){ S.sel=id; const st=findStop(id); if(st&&st.ll){
   if(fromMap){ S.tab='plan'; syncTabs(); S.open={[id]:true}; setSheet(true); }
   renderPanel(true); if(fromMap){ const el=document.querySelector(`[data-row="${id}"]`); if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'}); } }
 const noEmo=t=>String(t||'').replace(/\p{Extended_Pictographic}\uFE0F?\s*/gu,'');
-function gdir(st,m){ return `https://www.google.com/maps/dir/?api=1&destination=${st.ll[0]},${st.ll[1]}&travelmode=${GMODE[m]||'walking'}`; }
+// Google Maps directions. During the trip (live) start from the phone's location; otherwise from the previous stop, so the link also works when opened from Korea.
+function prevOf(st){ const c=(PLAN&&PLAN.chain)||[]; const i=c.findIndex(r=>r.st.id===st.id); if(i>0) return c[i-1].st; const d=DATA[S.day-1]; return (d&&d.stops.find(x=>x.key==='YMCA'&&x.id!==st.id))||null; }
+function gdir(st,m){ const from=S.live?null:prevOf(st); const o=from&&from.ll?`&origin=${from.ll[0]},${from.ll[1]}`:'';
+  return `https://www.google.com/maps/dir/?api=1${o}&destination=${st.ll[0]},${st.ll[1]}&travelmode=${GMODE[m]||'walking'}`; }
 const issueHtml=iss=>iss.map(i=>`<div class="iss"><span class="chip ${i.lv}">${LVTXT[i.lv]}</span><span>${esc(i.msg)}</span></div>`).join('');
 const spotsHtml=st=>(st.spots||[]).map(s=>`<div class="spot"><span class="muted">사진</span><span><b>${esc(s.t)}</b> ${esc(s.tip)}${s.when?` <span class="muted">(${esc(s.when)})</span>`:''}</span></div>`).join('');
 let lastPanelKey='';
