@@ -286,13 +286,26 @@ ol.plan{margin-top:2px}
 @media (max-width:520px){ .daybtn .wd{display:none} }
 .whos{display:grid;gap:8px}
 .trio{display:flex;align-items:center;gap:6px;flex:none}
+.round svg{width:20px;height:20px} .stepbtn svg{width:16px;height:16px} .startbtn span svg{width:16px;height:16px;margin-left:2px}
+.themebtn{display:inline-flex;align-items:center;gap:6px} .themebtn svg{width:15px;height:15px;flex:none}
+.hlabel{display:inline-flex;align-items:center;gap:3px} .hlabel svg{width:13px;height:13px}
+.round,.stepbtn{display:flex;align-items:center;justify-content:center;padding:0}
+@media (max-width:959px){
+  .sheet:not(.open) .handle{display:none}
+  .sheet:not(.open){padding-bottom:0;background:transparent}
+  .sheet:not(.open) .strip{margin:0;min-height:44px;padding:6px 12px;border-radius:10px}
+  .strip{gap:8px} .strip b{font-size:15px} .strip .t{font-size:15px} .strip .k,.strip .m{font-size:11px}
+  .strip .lb{min-width:20px;height:20px;font-size:11.5px}
+  .strip::after{content:"";flex:none;width:14px;height:14px;margin-left:2px;background:currentColor;opacity:.7;-webkit-mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" fill="none" stroke="black" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" fill="none" stroke="black" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>') center/contain no-repeat}
+  .sheet.open .strip::after{transform:rotate(180deg)}
+}
 @media (max-width:959px){
   header.top{display:flex!important;flex-wrap:nowrap;align-items:center;gap:6px}
   header.top h1{display:none}
   header.top .days{order:0!important;flex:1;min-width:0;width:auto!important}
   header.top .live{display:none}
-  header.top .themebtn{order:2!important;flex:none;width:40px;min-height:40px;padding:0;font-size:0;border-radius:8px;display:flex;align-items:center;justify-content:center}
-  header.top .themebtn::before{content:"◐";font-size:17px;line-height:1}
+  header.top .themebtn{order:2!important;flex:none;width:40px;min-height:40px;padding:0;border-radius:8px;justify-content:center}
+  header.top .themebtn span{display:none} header.top .themebtn svg{width:18px;height:18px}
 }
 .stepbtn{width:36px;height:36px;border-radius:50%;border:1px solid #D8DFE8;background:#FFFFFF;color:#1F2A44;font-size:13px;display:flex;align-items:center;justify-content:center;padding:0;flex:none}
 .stepbtn:active{background:#EEF2F6}
@@ -356,18 +369,18 @@ a.btn,button.btn{min-height:40px;padding:8px 14px;font-size:14px;justify-content
   <main>
     <section class="stage" aria-label="미니어처 홍콩 지도">
       <div id="view">
-        <div class="tilt" aria-hidden="true"></div><button class="startbtn" id="startBtn"><span>▶</span>여행 시작</button><div class="bubble" id="bubble" hidden></div>
+        <div class="tilt" aria-hidden="true"></div><button class="startbtn" id="startBtn"><span id="startIc"></span>여행 시작</button><div class="bubble" id="bubble" hidden></div>
         <div class="plate" id="plate" aria-live="polite"><div class="band"><span id="pBand"></span><span id="pBand2"></span></div><div class="dest"><b id="pName"></b><span id="pTime"></span></div></div>
         <div class="camctl"><button class="pill" id="follow" aria-pressed="true">따라가기</button><button class="pill" id="overview">전체 보기</button><button class="pill" id="rainBtn" aria-pressed="false">비 오면</button><button class="pill" id="speed" aria-label="재생 속도 바꾸기">속도 느리게</button></div>
       </div>
       <div class="timebar">
-        <div class="trio"><button class="stepbtn" id="prevStop" aria-label="이전 장소">⏮</button><button class="round" id="play" aria-label="일시정지">❚❚</button><button class="stepbtn" id="nextStop" aria-label="다음 장소">⏭</button></div>
+        <div class="trio"><button class="stepbtn" id="prevStop" aria-label="이전 장소"></button><button class="round" id="play" aria-label="일시정지">❚❚</button><button class="stepbtn" id="nextStop" aria-label="다음 장소"></button></div>
         <span class="clock" id="clock">00:00</span>
         <div class="track" id="track" role="slider" tabindex="0" aria-label="시각"></div>
       </div>
     </section>
     <aside class="sheet" id="sheet">
-      <button class="handle" id="handle" aria-label="정보 창 펼치기"><span class="hlabel" id="hlabel">일정 펼치기 ▴</span></button>
+      <button class="handle" id="handle" aria-label="정보 창 펼치기"><span class="hlabel" id="hlabel">일정 펼치기</span></button>
       <div class="strip" id="strip" role="button" tabindex="0" aria-label="다음 장소, 눌러서 정보 창 펼치기"></div>
       <div class="seg" role="tablist">
         <button role="tab" id="tab-now" aria-selected="true">지금</button>
@@ -964,14 +977,23 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 function findStop(id){ for(const d of DATA) for(const s of d.stops) if(s.id===id) return s; return null; }
-function syncPlay(){ const b=$('play'); b.textContent=S.playing?'❚❚':'▶'; b.setAttribute('aria-label',S.playing?'일시정지':'재생'); }
+const IC={
+ play:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+ pause:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5.5" width="3.8" height="13" rx="1.2" fill="currentColor"/><rect x="13.7" y="5.5" width="3.8" height="13" rx="1.2" fill="currentColor"/></svg>',
+ prev:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.5 6.5v11L9.5 12z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="5.5" y="6" width="2.6" height="12" rx="1" fill="currentColor"/></svg>',
+ next:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5v11l8-5.5z" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><rect x="15.9" y="6" width="2.6" height="12" rx="1" fill="currentColor"/></svg>',
+ moon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+ sun:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+ up:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ down:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+function syncPlay(){ const b=$('play'); b.innerHTML=S.playing?IC.pause:IC.play; b.setAttribute('aria-label',S.playing?'일시정지':'재생'); }
 function syncFollow(){ $('follow').setAttribute('aria-pressed',String(S.follow)); }
 function syncLive(){ const m=$('live'); m.className='live'+(S.live?' on':''); m.hidden=!S.live; m.textContent=S.live?'● 실시간 홍콩 '+fmt(S.t):''; }
 function renderDays(){ $('days').innerHTML=DATA.map((d,i)=>`<button class="daybtn" style="--c:${DAYC[i]}" aria-pressed="${S.day===d.n}" data-day="${d.n}"><span class="lb">${d.n}</span>${d.date.slice(5).replace('-','.')}<span class="wd"> ${d.wd}</span></button>`).join(''); }
 $('days').addEventListener('click',e=>{ const b=e.target.closest('[data-day]'); if(!b) return; S.live=false; S.day=+b.dataset.day; S.t=dayStartT(S.day); hideStart(); S.sel=null; onDayChange(); syncLive(); });
 function camHome(){ const s0=scenePos(PLAN,S.day,S.t).pos; flying={to:new THREE.Vector3(s0.x,(s0.y||0)*.6,s0.z),cam:new THREE.Vector3(s0.x+4,camera.aspect<1?40:30,s0.z+(camera.aspect<1?44:34))}; }
 function onDayChange(){ document.documentElement.style.setProperty('--day',dayCol(S.day)); PLAN=getPlan(S.day); S.follow=true; syncFollow(); lastKor=null; if(!(S.day===1&&S.t<KSW)) camHome(); renderDays(); buildDay(S.day); renderPanel(true); renderTrack(); }
-function syncTheme(){ const d=document.documentElement.dataset.theme==='dark'; const b=$('themeBtn'); b.textContent=d?'밝게':'어둡게'; b.setAttribute('aria-label',d?'밝은 화면으로':'어두운 화면으로'); }
+function syncTheme(){ const d=document.documentElement.dataset.theme==='dark'; const b=$('themeBtn'); b.innerHTML=(d?IC.sun:IC.moon)+'<span>'+(d?'밝게':'어둡게')+'</span>'; b.setAttribute('aria-label',d?'밝은 화면으로':'어두운 화면으로'); }
 $('themeBtn').addEventListener('click',()=>{ const r=document.documentElement; r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'; try{ localStorage.setItem('hk-theme',r.dataset.theme); }catch(e){} syncTheme(); }); syncTheme();
 ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>{ if(!e.target.closest||!e.target.closest('#view')) e.preventDefault(); },{passive:false}));
 document.addEventListener('touchmove',e=>{ if(e.touches&&e.touches.length>1&&!(e.target.closest&&e.target.closest('#view'))) e.preventDefault(); },{passive:false});
@@ -979,6 +1001,7 @@ function stopTimes(){ let ts=[]; if(S.day===1) ts=PLAN0.chain.map(r=>r.arr-60); 
 function jumpStop(dir){ hideStart(); S.live=false; syncLive(); const ts=stopTimes(); let t=dir>0?ts.find(x=>x>S.t+.5):[...ts].reverse().find(x=>x<S.t-1);
   if(t==null){ if(dir>0&&S.day<4){ S.day++; S.t=dayStartT(S.day); onDayChange(); return; } if(dir<0&&S.day>1){ S.day--; onDayChange(); const t2=stopTimes(); S.t=t2[t2.length-1]; return; } return; }
   S.t=t; syncTrack(); }
+$('prevStop').innerHTML=IC.prev; $('nextStop').innerHTML=IC.next; $('startIc').innerHTML=IC.play; $('hlabel').innerHTML='일정 펼치기'+IC.up;
 $('prevStop').addEventListener('click',()=>jumpStop(-1)); $('nextStop').addEventListener('click',()=>jumpStop(1));
 function hideStart(){ const b=$('startBtn'); if(b) b.hidden=true; }
 $('startBtn').addEventListener('click',()=>{ hideStart(); if(!S.live){ S.t=dayStartT(S.day); } S.playing=true; syncPlay(); });
@@ -1001,7 +1024,7 @@ const SPEEDS=[[1,'느리게'],[4,'보통'],[15,'빠르게']]; $('speed').addEven
 $('follow').addEventListener('click',()=>{ S.follow=!S.follow; syncFollow(); flying=null; });
 $('overview').addEventListener('click',()=>{ flying={to:new THREE.Vector3(0,0,2),cam:new THREE.Vector3(0,74,80)}; S.follow=false; syncFollow(); });
 $('strip').addEventListener('click',()=>$('handle').click()); $('strip').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('handle').click(); } });
-function setSheet(open){ const s=$('sheet'); s.classList.toggle('open',open); const o=s.classList.contains('open'); $('handle').setAttribute('aria-label',o?'정보 창 접기':'정보 창 펼치기'); $('hlabel').textContent=o?'지도 크게 보기 ▾':'일정 펼치기 ▴'; setTimeout(resize,280); }
+function setSheet(open){ const s=$('sheet'); s.classList.toggle('open',open); const o=s.classList.contains('open'); $('handle').setAttribute('aria-label',o?'정보 창 접기':'정보 창 펼치기'); $('hlabel').innerHTML=o?'지도 크게 보기'+IC.down:'일정 펼치기'+IC.up; setTimeout(resize,280); }
 $('handle').addEventListener('click',()=>setSheet(!$('sheet').classList.contains('open')));
 // swipe down on the top of the sheet folds it, swipe up opens it
 { let y0=null; const top=[$('handle'),$('strip')]; top.forEach(el=>{ el.addEventListener('touchstart',e=>{ y0=e.touches[0].clientY; },{passive:true}); el.addEventListener('touchend',e=>{ if(y0==null) return; const dy=e.changedTouches[0].clientY-y0; y0=null; if(Math.abs(dy)>40){ setSheet(dy<0); } },{passive:true}); }); }
