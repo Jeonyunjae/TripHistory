@@ -19,7 +19,7 @@ def write(path, html):
 pages = json.loads(rd('src/trips.json'))
 
 # home
-static = [dict(id=p['notionId'], key=p.get('key'), color=p.get('color'), **p['fallback']) for p in pages]
+static = [dict(id=p['notionId'], key=p.get('key'), color=p.get('color'), route=p.get('route'), **p['fallback']) for p in pages]
 home = rd('src/home.html').replace('__TRIPS__', json.dumps(static, ensure_ascii=False).replace('</', '<\\/'))
 write('index.html', HEAD.format(extra='') + home + TAIL)
 

@@ -7,7 +7,7 @@ const norm = id => String(id || '').replace(/-/g, '');
 let cache = { t: 0, data: null };
 
 function fromStatic() {
-  return PAGES.map(p => ({ id: p.notionId, key: p.key, color: p.color, ...p.fallback }));
+  return PAGES.map(p => ({ id: p.notionId, key: p.key, color: p.color, route: p.route || null, ...p.fallback }));
 }
 
 async function fromNotion(ds) {
@@ -20,7 +20,7 @@ async function fromNotion(ds) {
   return rows.map(r => {
     const p = r.properties, cfg = PAGES.find(x => norm(x.notionId) === norm(r.id)) || {};
     const d = p['날짜']?.date || {};
-    return { id: r.id, key: cfg.key || null, color: cfg.color || null,
+    return { id: r.id, key: cfg.key || null, color: cfg.color || null, route: cfg.route || null,
       title: txt(p['Name']) || cfg.fallback?.title || '여행', place: txt(p['여행지']), status: p['상태']?.select?.name || '',
       start: d.start || '', end: d.end || d.start || '', oneLine: txt(p['한줄기록']),
       emoji: r.icon?.type === 'emoji' ? r.icon.emoji : (cfg.fallback?.emoji || '✈️') };

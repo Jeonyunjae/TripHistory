@@ -4,12 +4,13 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+TC:wght@700&display=swap">
 <script>try{document.documentElement.dataset.theme=localStorage.getItem("hk-theme")||"light";}catch(e){document.documentElement.dataset.theme="light";}</script>
 <style>
-/* Layout: one column of trip "tickets"; the next trip is a large boarding-pass card, past trips are compact rows. */
+/* Layout: a sky hero with the two of us, then the next trip as a real boarding pass, then past trips as ticket stubs. */
 :root{
   --bg:#EEF2F6; --paper:#FFFFFF; --sunk:#F2F5F8; --ink:#1F2A44; --muted:#66738A; --line:#D8DFE8; --sun:#E0784C;
-  --f:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; --f-han:"Noto Serif TC","Songti TC",serif;
+  --sky1:#CFE2F0; --sky2:#F7DCCB;
+  --f:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
-:root[data-theme="dark"]{ --bg:#10151F; --paper:#171E2B; --sunk:#1D2533; --ink:#E8EDF5; --muted:#9AA6B8; --line:#2A3445; --sun:#F29A72; color-scheme:dark }
+:root[data-theme="dark"]{ --bg:#10151F; --paper:#171E2B; --sunk:#1D2533; --ink:#E8EDF5; --muted:#9AA6B8; --line:#2A3445; --sun:#F29A72; --sky1:#1B2438; --sky2:#3A2A3A; color-scheme:dark }
 [hidden]{display:none!important}
 *{box-sizing:border-box}
 html,body{min-height:100%}
@@ -17,62 +18,90 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-si
 button{font:inherit;color:inherit;cursor:pointer}
 a{color:inherit}
 :focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:8px}
-.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px;display:flex;flex-direction:column;gap:28px}
-header{display:flex;align-items:center;gap:12px}
-header h1{margin:0;font-size:22px;font-weight:900;letter-spacing:-.02em;text-wrap:balance}
-header .sub{font-size:13px;color:var(--muted)}
-.themebtn{margin-left:auto;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;flex:none}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 56px;display:flex;flex-direction:column;gap:26px}
+/* hero */
+.hero{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(160deg,var(--sky1) 0%,var(--sky1) 45%,var(--sky2) 100%);padding:22px 20px 0;min-height:216px;display:flex;flex-direction:column}
+.hero .top{display:flex;align-items:flex-start;gap:10px;position:relative;z-index:2}
+.hero h1{margin:0;font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1.2;text-wrap:balance}
+.hero .who{font-size:13px;color:var(--muted);margin-top:4px}
+.hero .stats{position:relative;z-index:2;display:flex;gap:18px;margin-top:auto;padding-bottom:18px}
+.hero .stats div{display:flex;flex-direction:column}
+.hero .stats b{font-size:24px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+.hero .stats span{font-size:12px;color:var(--muted)}
+.hero .duo{position:absolute;right:8px;bottom:-6px;width:170px;height:auto;z-index:1;filter:drop-shadow(0 8px 14px rgba(31,42,68,.18))}
+.hero svg.path{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.themebtn{margin-left:auto;width:40px;height:40px;border-radius:12px;border:0;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;flex:none;color:#1F2A44}
+:root[data-theme="dark"] .themebtn{background:rgba(255,255,255,.12);color:#E8EDF5}
 .themebtn svg{width:18px;height:18px}
 h2{margin:0 0 10px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.04em}
-/* next trip: boarding pass */
-.pass{display:grid;grid-template-columns:1fr auto;background:var(--paper);border-radius:14px;overflow:hidden;box-shadow:0 2px 14px rgba(31,42,68,.08);text-decoration:none;position:relative}
-.pass .band{grid-column:1/-1;background:var(--c);color:#FFFFFF;display:flex;justify-content:space-between;align-items:center;padding:8px 18px;font-size:12.5px;font-weight:700;letter-spacing:.04em}
-.pass .main{padding:18px;display:flex;flex-direction:column;gap:6px;min-width:0}
-.pass .ttl{font-size:26px;font-weight:900;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
-.pass .ttl .e{font-size:24px}
-.pass .meta{font-size:14px;color:var(--muted)}
-.pass .line{font-size:14px}
-.pass .stub{border-left:2px dashed var(--line);padding:18px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:112px;text-align:center}
-.pass .stub b{font-size:34px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:var(--c)}
-.pass .stub span{font-size:12px;color:var(--muted)}
-.pass .go{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:12px 18px;font-weight:700;font-size:14px}
+/* boarding pass */
+.pass{display:grid;grid-template-columns:1fr 128px;background:var(--paper);border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(31,42,68,.10);text-decoration:none;position:relative}
+.pass .band{grid-column:1/-1;background:var(--c);color:#FFFFFF;display:flex;justify-content:space-between;align-items:center;padding:9px 18px;font-size:11.5px;font-weight:700;letter-spacing:.12em}
+.pass .main{padding:16px 18px 14px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.route{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px}
+.route .ap b{display:block;font-size:34px;font-weight:900;letter-spacing:.02em;line-height:1}
+.route .ap span{font-size:12.5px;color:var(--muted)}
+.route .ap:last-child{text-align:right}
+.route .fly{position:relative;height:2px;background:repeating-linear-gradient(90deg,var(--line) 0 6px,transparent 6px 11px)}
+.route .fly svg{position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);color:var(--c);background:var(--paper);padding:0 2px}
+.title{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:900}
+.fields{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:4px 22px}
+.fields div{display:flex;flex-direction:column;min-width:0}
+.fields span{font-size:11px;color:var(--muted);letter-spacing:.04em}
+.fields b{font-size:14px;font-weight:700;white-space:nowrap}
+.pass .stub{border-left:2px dashed var(--line);padding:16px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;position:relative}
+.pass .stub::before,.pass .stub::after{content:"";position:absolute;left:-10px;width:18px;height:18px;border-radius:50%;background:var(--bg)}
+.pass .stub::before{top:-9px} .pass .stub::after{bottom:-9px}
+.pass .stub b{font-size:30px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:var(--c)}
+.pass .stub span{font-size:11.5px;color:var(--muted)}
+.pass .stub i{display:block;width:84px;height:30px;margin-top:8px;opacity:.75;background:repeating-linear-gradient(90deg,var(--ink) 0 2px,transparent 2px 4px,var(--ink) 4px 5px,transparent 5px 8px,var(--ink) 8px 11px,transparent 11px 12px)}
+.pass .go{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:13px 18px;font-weight:700;font-size:14px;color:var(--c)}
 .pass .go svg{width:18px;height:18px}
-.pass:hover .go{background:var(--sunk)}
-/* past trips */
-.list{display:flex;flex-direction:column;gap:10px}
-.row{display:grid;grid-template-columns:6px 1fr auto;gap:0 14px;align-items:center;background:var(--paper);border-radius:12px;padding:14px 16px 14px 0;text-decoration:none;min-width:0}
-.row i{align-self:stretch;background:var(--c);border-radius:0 4px 4px 0}
-.row .t{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;min-width:0}
-.row .t small{font-weight:400;font-size:12.5px;color:var(--muted)}
-.row .l{grid-column:2;font-size:13.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.row .tag{grid-row:1/span 2;grid-column:3;font-size:12px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:3px 10px;white-space:nowrap}
-a.row:hover{background:var(--sunk)}
-.row .tag.on{color:var(--paper);background:var(--ink);border-color:var(--ink)}
+a.pass:hover .go{background:var(--sunk)}
+/* past trips: ticket stubs */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.stubcard{background:var(--paper);border-radius:14px;overflow:hidden;text-decoration:none;display:flex;flex-direction:column;box-shadow:0 2px 10px rgba(31,42,68,.06);min-width:0}
+.stubcard .hd{background:var(--c);color:#FFFFFF;padding:8px 14px;display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;letter-spacing:.08em}
+.stubcard .bd{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px}
+.stubcard .t{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:900}
+.stubcard .t .e{font-size:22px}
+.stubcard .d{font-size:12.5px;color:var(--muted)}
+.stubcard .l{font-size:13.5px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.stubcard .ft{margin-top:auto;border-top:1px dashed var(--line);padding:9px 14px;font-size:12px;font-weight:700;color:var(--muted);display:flex;justify-content:space-between}
+a.stubcard:hover{box-shadow:0 6px 18px rgba(31,42,68,.12)}
 .empty{color:var(--muted);font-size:14px;background:var(--paper);border-radius:12px;padding:16px}
-.foot{font-size:12px;color:var(--muted)}
+.foot{font-size:12px;color:var(--muted);text-align:center}
 /* login */
-.gate{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}
-.gatebox{background:var(--paper);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px;width:min(340px,100%);box-shadow:0 8px 30px rgba(31,42,68,.12)}
-.gatebox b{font-size:18px;font-weight:900}
-.gatebox input[type=password]{min-height:44px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--paper);color:var(--ink);font:inherit}
+.gate{position:fixed;inset:0;z-index:80;background:linear-gradient(170deg,var(--sky1),var(--sky2));display:flex;align-items:center;justify-content:center;padding:16px}
+.gatebox{background:var(--paper);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px;width:min(340px,100%);box-shadow:0 12px 40px rgba(31,42,68,.16);position:relative}
+.gatebox img{width:120px;height:auto;align-self:center;margin-top:-80px}
+.gatebox b{font-size:18px;font-weight:900;text-align:center}
+.gatebox .muted{text-align:center}
+.gatebox input[type=password]{min-height:44px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--paper);color:var(--ink);font:inherit;text-align:center;letter-spacing:.3em}
+.gatebox input[type=password]::placeholder{letter-spacing:normal}
 .who2{display:flex;gap:8px} .who2 label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
 .who2 label:has(input:checked){border-color:var(--ink);font-weight:700}
 .btn{min-height:44px;border:0;border-radius:8px;background:var(--ink);color:var(--paper);font-weight:700}
 .muted{color:var(--muted)} .sm{font-size:13px}
-@media (max-width:480px){ .pass{grid-template-columns:1fr} .pass .stub{border-left:0;border-top:2px dashed var(--line);flex-direction:row;gap:10px;padding:12px 18px;justify-content:flex-start} .pass .stub b{font-size:26px} .pass .ttl{font-size:22px} }
+@media (max-width:480px){ .hero{min-height:200px} .hero .duo{width:140px} .hero h1{font-size:23px}
+  .pass{grid-template-columns:1fr} .pass .stub{border-left:0;border-top:2px dashed var(--line);flex-direction:row;gap:12px;padding:12px 18px;justify-content:flex-start;text-align:left}
+  .pass .stub::before,.pass .stub::after{top:-10px;left:auto} .pass .stub::before{left:-9px} .pass .stub::after{right:-9px;bottom:auto}
+  .pass .stub i{margin:0 0 0 auto;height:26px;width:70px} .pass .stub b{font-size:24px} .route .ap b{font-size:28px} .fields{gap:4px 16px} }
 </style>
 
 <div class="wrap">
-  <header>
-    <div><h1>희주 윤재의 여행</h1><div class="sub" id="who"></div></div>
-    <button class="themebtn" id="themeBtn" aria-label="어두운 화면으로"></button>
-  </header>
+  <section class="hero">
+    <svg class="path" viewBox="0 0 400 220" preserveAspectRatio="none" aria-hidden="true"><path d="M-10 170 C 90 120, 160 60, 260 70 S 380 40, 420 20" fill="none" stroke="rgba(31,42,68,.18)" stroke-width="2" stroke-dasharray="5 7"/></svg>
+    <div class="top"><div><h1>희주 윤재의 여행</h1><div class="who" id="who"></div></div><button class="themebtn" id="themeBtn" aria-label="어두운 화면으로"></button></div>
+    <div class="stats"><div><b id="stCount">–</b><span>함께한 여행</span></div><div><b id="stNext">–</b><span id="stNextL">다음 여행</span></div></div>
+    <img class="duo" src="/couple.png" alt="손잡은 희주와 윤재">
+  </section>
   <section id="upcoming"><h2>다가오는 여행</h2><div id="next"></div></section>
-  <section><h2>지난 여행</h2><div class="list" id="past"></div></section>
+  <section><h2>지난 여행</h2><div class="grid" id="past"></div></section>
   <p class="foot" id="src"></p>
 </div>
 
-<div class="gate" id="gate" hidden><form id="gateForm" class="gatebox"><b>희주 윤재 두번째 여행</b><span class="muted sm">둘만 보는 페이지예요</span><div class="who2"><label><input type="radio" name="gateWho" value="희주" checked> 희주</label><label><input type="radio" name="gateWho" value="윤재"> 윤재</label></div><input type="password" id="gatePw" inputmode="numeric" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호"><button class="btn" type="submit">들어가기</button><span class="sm muted" id="gateMsg" aria-live="polite"></span></form></div>
+<div class="gate" id="gate" hidden><form id="gateForm" class="gatebox"><img src="/couple.png" alt=""><b>희주 윤재의 여행</b><span class="muted sm">둘만 보는 페이지예요</span><div class="who2"><label><input type="radio" name="gateWho" value="희주" checked> 희주</label><label><input type="radio" name="gateWho" value="윤재"> 윤재</label></div><input type="password" id="gatePw" inputmode="numeric" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호"><button class="btn" type="submit">들어가기</button><span class="sm muted" id="gateMsg" aria-live="polite"></span></form></div>
 
 <script id="trips-static" type="application/json">__TRIPS__</script>
 <script>
@@ -82,6 +111,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const IC={moon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
  sun:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+ plane:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.5l-8-4.5V3.5a1.5 1.5 0 0 0-3 0V8l-7 4.5v2l7-2v4.3l-2 1.5V20l3.5-1 3.5 1v-1.7l-2-1.5v-4.3l8 2z" fill="currentColor" transform="rotate(90 12 12)"/></svg>',
  go:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
 function syncTheme(){ const d=document.documentElement.dataset.theme==='dark'; $('themeBtn').innerHTML=d?IC.sun:IC.moon; $('themeBtn').setAttribute('aria-label',d?'밝은 화면으로':'어두운 화면으로'); }
 $('themeBtn').onclick=()=>{ const r=document.documentElement; r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'; try{ localStorage.setItem('hk-theme',r.dataset.theme); }catch(e){} syncTheme(); }; syncTheme();
@@ -98,19 +128,28 @@ function render(trips,source){
   const now=today();
   const up=trips.filter(t=>t.start&&day(t.end||t.start)>=now).sort((a,b)=>a.start.localeCompare(b.start));
   const past=trips.filter(t=>!up.includes(t)).sort((a,b)=>(b.start||'').localeCompare(a.start||''));
+  const done=trips.filter(t=>t.status==='완료'||(t.end&&day(t.end)<now)).length;
+  $('stCount').textContent=done+'번';
   const n=up[0];
-  if(n){ const dd=Math.round((day(n.start)-now)/864e5), during=dd<=0; const href=link(n);
+  if(n){ const dd=Math.round((day(n.start)-now)/864e5), during=dd<=0; const href=link(n), r=n.route||{};
+    $('stNext').textContent=during?'여행 중':'D-'+dd; $('stNextL').textContent=(n.place||n.title)+(during?'':'까지');
     $('next').innerHTML=`<${href?'a':'div'} class="pass" ${href?`href="${href}"`:''} style="--c:${n.color||'#1F2A44'}">
-      <div class="band"><span>${esc(n.place||'')}</span><span>${esc(nights(n))}</span></div>
-      <div class="main"><div class="ttl"><span class="e">${esc(n.emoji||'✈️')}</span>${esc(n.title)}</div><div class="meta">${esc(range(n))}</div>${n.oneLine?`<div class="line">${esc(n.oneLine)}</div>`:''}</div>
-      <div class="stub"><b>${during?'여행 중':'D-'+dd}</b><span>${during?'즐거운 여행 되세요':'출발까지'}</span></div>
+      <div class="band"><span>BOARDING PASS · 탑승권</span><span>${esc(nights(n))}</span></div>
+      <div class="main">
+        ${r.from?`<div class="route"><div class="ap"><b>${esc(r.from)}</b><span>${esc(r.fromName||'')}</span></div><div class="fly">${IC.plane}</div><div class="ap"><b>${esc(r.to)}</b><span>${esc(r.toName||'')}</span></div></div>`:''}
+        <div class="title"><span>${esc(n.emoji||'✈️')}</span>${esc(n.title)}</div>
+        <div class="fields"><div><span>출발</span><b>${esc(fmtD(n.start))}</b></div><div><span>도착</span><b>${esc(fmtD(n.end))}</b></div>${r.flight?`<div><span>편명</span><b>${esc(r.flight)}</b></div>`:''}</div>
+        ${n.oneLine?`<div class="sm muted">${esc(n.oneLine)}</div>`:''}
+      </div>
+      <div class="stub"><b>${during?'여행 중':'D-'+dd}</b><span>${during?'즐거운 여행 되세요':'출발까지'}</span><i aria-hidden="true"></i></div>
       <div class="go"><span>${href?'여행 페이지 열기':'페이지 준비 중'}</span>${href?IC.go:''}</div></${href?'a':'div'}>`;
     up.slice(1).forEach(t=>past.unshift(t)); }
-  else $('next').innerHTML='<div class="empty">다음 여행을 노션 「여행 기록」에 추가하면 여기에 나타나요.</div>';
-  $('past').innerHTML=past.length?past.map(t=>{ const href=link(t); return `<${href?'a':'div'} class="row" ${href?`href="${href}"`:''} style="--c:${t.color||'#9AA6B5'}"><i></i>
-      <span class="t">${esc(t.emoji||'')} ${esc(t.title)} <small>${esc(range(t))}</small></span><span class="l">${esc(t.oneLine||t.place||'')}</span>
-      <span class="tag ${href?'on':''}">${href?'열기':esc(t.status||'기록')}</span></${href?'a':'div'}>`; }).join(''):'<div class="empty">아직 없어요.</div>';
-  $('src').textContent=source==='notion'?'노션 「여행 기록」에서 불러왔어요.':'';
+  else { $('stNext').textContent='–'; $('next').innerHTML='<div class="empty">다음 여행을 노션 「여행 기록」에 추가하면 여기에 나타나요.</div>'; }
+  $('past').innerHTML=past.length?past.map(t=>{ const href=link(t), r=t.route||{}; return `<${href?'a':'div'} class="stubcard" ${href?`href="${href}"`:''} style="--c:${t.color||'#9AA6B5'}">
+      <div class="hd"><span>${r.from?esc(r.from)+' → '+esc(r.to):esc(t.place||'')}</span><span>${esc(nights(t))}</span></div>
+      <div class="bd"><div class="t"><span class="e">${esc(t.emoji||'✈️')}</span>${esc(t.title)}</div><div class="d">${esc(range(t))}</div>${t.oneLine?`<div class="l">${esc(t.oneLine)}</div>`:''}</div>
+      <div class="ft"><span>${esc(t.status||'')}</span><span>${href?'열기 ›':''}</span></div></${href?'a':'div'}>`; }).join(''):'<div class="empty">아직 없어요.</div>';
+  $('src').textContent=source==='notion'?'노션 「여행 기록」에서 불러왔어요':'';
 }
 
 async function me(){ try{ const r=await fetch('/api/me'); if(r.ok) return (await r.json()).who||''; if(r.status===401) return null; }catch(e){} return ''; }
