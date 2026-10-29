@@ -1,5 +1,5 @@
 // Trip list for the home page. Notion 「여행 기록」 DB is the source; src/trips.json only says which trips have a web page.
-import { notion, session, json } from './_lib.js';
+import { notion, session, json, TRIPS_DS } from './_lib.js';
 import PAGES from '../src/trips.json' with { type: 'json' };
 
 const txt = p => ((p && (p.rich_text || p.title)) || []).map(x => x.plain_text).join('');
@@ -29,8 +29,7 @@ async function fromNotion(ds) {
 
 export default async function handler(req, res) {
   if (!session(req)) return json(res, 401, { error: 'login' });
-  const ds = process.env.NOTION_TRIPS_DATA_SOURCE_ID;
-  if (!ds) return json(res, 200, { trips: fromStatic(), source: 'static' });
+  const ds = TRIPS_DS();
   try {
     if (!cache.data || Date.now() - cache.t > 60000) cache = { t: Date.now(), data: await fromNotion(ds) };
     json(res, 200, { trips: cache.data, source: 'notion' });
