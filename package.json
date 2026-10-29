@@ -1,0 +1,7 @@
+{
+  "name": "hk-trip",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": { "build:page": "python3 tools/build.py" }
+}
