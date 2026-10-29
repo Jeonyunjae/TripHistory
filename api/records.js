@@ -14,7 +14,7 @@ function toRecord(pg) {
 }
 
 export async function listRecords() {
-  if (cache.data && Date.now() - cache.t < 10000) return cache.data;
+  if (cache.data && Date.now() - cache.t < 3000) return cache.data;
   let out = [], cursor;
   do {
     const j = await notion(`/data_sources/${DS()}/query`, { method: 'POST', body: {

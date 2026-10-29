@@ -287,6 +287,7 @@ ol.plan{margin-top:2px}
 @media (max-width:959px){ header.top .days{grid-template-columns:repeat(5,1fr)!important;gap:4px} .daybtn{padding:4px 2px;gap:4px;font-size:12.5px;justify-content:center} .daybtn .lb{min-width:22px;height:22px;font-size:12px} }
 @media (max-width:520px){ .daybtn .wd{display:none} }
 .whos{display:grid;gap:8px}
+.row.exp{flex-wrap:nowrap} .row.exp input{flex:1;min-width:0;min-height:42px;border:1px solid var(--line);border-radius:6px;padding:0 12px;background:var(--paper);color:var(--ink);font:inherit}
 .startbtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;display:flex;align-items:center;gap:10px;min-height:56px;padding:0 26px 0 18px;border:0;border-radius:28px;background:#1F2A44;color:#FFFFFF;font-family:var(--f-head);font-size:18px;font-weight:900;box-shadow:0 6px 24px rgba(31,42,68,.35)}
 .startbtn span{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#E0784C;font-size:14px}
 .gate{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}
@@ -733,9 +734,9 @@ let PLAN=S.day===0?null:plan(S.day,false);
 function scenePos(Pl,dn,t){
   const w=where(Pl,t); const day=DATA[dn-1]; const hotel=at(day.stops.find(s=>s.key==='YMCA').ll);
   let pos={x:hotel.x,y:0,z:hotel.z}, mode=null, face=0, moving=false, dir={x:0,z:1}, legLen=0;
-  if(w.phase==='before'){ const f=w.next; if(legMode(f.st.move)==='plane'){ const ap=at(f.st.ll); pos={x:ap.x-30,y:16,z:ap.z}; mode='plane'; } }
-  else if(w.phase==='move'){ moving=true; mode=legMode(w.to.st.move); const b=at(w.to.st.ll); const a=w.from?at(w.from.st.ll):(mode==='plane'?{x:b.x-30,y:16,z:b.z}:hotel);
-    const f=w.frac; pos={x:a.x+(b.x-a.x)*f,z:a.z+(b.z-a.z)*f,y:0}; pos.y=mode==='plane'?(16+(b.y+.6-16)*Math.min(1,f*1.05)):H(pos.x,pos.z);
+  if(w.phase==='before'){ const f=w.next; if(legMode(f.st.move)==='plane'){ const ap=at(f.st.ll); pos={x:ap.x+22,y:12,z:ap.z-14}; mode='plane'; } }
+  else if(w.phase==='move'){ moving=true; mode=legMode(w.to.st.move); const b=at(w.to.st.ll); const a=w.from?at(w.from.st.ll):(mode==='plane'?{x:b.x+22,y:12,z:b.z-14}:hotel);
+    const f=w.frac; pos={x:a.x+(b.x-a.x)*f,z:a.z+(b.z-a.z)*f,y:0}; pos.y=mode==='plane'?(12+(b.y+.6-12)*Math.min(1,f*1.05)):H(pos.x,pos.z);
     face=Math.atan2(b.x-a.x,b.z-a.z); legLen=Math.hypot(b.x-a.x,b.z-a.z); dir=legLen?{x:(b.x-a.x)/legLen,z:(b.z-a.z)/legLen}:dir; }
   else if(w.phase==='stay'){ const p=at(w.at.st.ll); pos={x:p.x+1.1,y:H(p.x+1.1,p.z+1.1),z:p.z+1.1}; face=Math.atan2(camera.position.x-pos.x,camera.position.z-pos.z); }
   else if(w.phase==='done'){ const p=at(w.last.st.ll); if(dn===4){ const since=t-w.last.dep; mode='plane'; pos={x:p.x-Math.max(0,since)*1.2,y:.6+Math.max(0,since)*.6,z:p.z}; face=-Math.PI/2; moving=true; } else pos={x:p.x+1.1,y:0,z:p.z+1.1}; }
@@ -923,7 +924,7 @@ function frame(now){
   if(S.live){ const L=checkLive(); if(L){ if(L.day!==S.day){ S.day=L.day; onDayChange(); } S.t=L.t; } else { S.live=false; syncLive(); } }
   else if(S.playing){ S.t+=dt*S.speed*boost();  if(S.t>1410){ S.t=1410; S.playing=false; syncPlay(); } }
   applyLook(S.t); fx(S.t,dt);
-  const K=isKor(); if(K!==lastKor){ lastKor=K; setBoard(K?0:1); if(K){ marker.material.color.set(DAYC[0]); marker.material.emissive.set(DAYC[0]); S.follow=true; syncFollow(); const k=camera.aspect<1?1.6:1; const apc=P0(KLOC.icn); flying={to:new THREE.Vector3(apc.x+1.6,KH,apc.z),cam:new THREE.Vector3(apc.x+1.6+7*k,KH+15*k,apc.z+19*k)}; } else { resetDuo(); buildDay(S.day); lastKor=false; S.follow=true; syncFollow(); } renderTrack(); renderPanel(true); }
+  const K=isKor(); if(K!==lastKor){ lastKor=K; setBoard(K?0:1); if(K){ marker.material.color.set(DAYC[0]); marker.material.emissive.set(DAYC[0]); S.follow=true; syncFollow(); const k=camera.aspect<1?1.6:1; const apc=P0(KLOC.icn); flying={to:new THREE.Vector3(apc.x+1.6,KH,apc.z),cam:new THREE.Vector3(apc.x+1.6+7*k,KH+15*k,apc.z+19*k)}; } else { resetDuo(); buildDay(S.day); lastKor=false; S.follow=true; syncFollow(); camHome(); } renderTrack(); renderPanel(true); }
   const sp=K?scenePos0(S.t+60):scenePos(PLAN,S.day,S.t); const inVeh=K?placeActors0(sp,dt):placeActors(sp,dt); const w=sp.w, pos=sp.pos;
   if(S.follow&&!flying){ const d=new THREE.Vector3(pos.x,pos.y,pos.z).sub(controls.target).multiplyScalar(.06); controls.target.add(d); camera.position.add(d); }
   if(flying){ controls.target.lerp(flying.to,.1); camera.position.lerp(flying.cam,.1); if(controls.target.distanceTo(flying.to)<.05) flying=null; }
@@ -943,7 +944,8 @@ function syncFollow(){ $('follow').setAttribute('aria-pressed',String(S.follow))
 function syncLive(){ const m=$('live'); m.className='live'+(S.live?' on':''); m.textContent=S.live?'● 실시간 홍콩 '+fmt(S.t):'미리보기'; }
 function renderDays(){ $('days').innerHTML=DATA.map((d,i)=>`<button class="daybtn" style="--c:${DAYC[i]}" aria-pressed="${S.day===d.n}" data-day="${d.n}"><span class="lb">${d.n}</span>${d.date.slice(5).replace('-','.')}<span class="wd"> ${d.wd}</span></button>`).join(''); }
 $('days').addEventListener('click',e=>{ const b=e.target.closest('[data-day]'); if(!b) return; S.live=false; S.day=+b.dataset.day; S.t=dayStartT(S.day); hideStart(); S.sel=null; onDayChange(); syncLive(); });
-function onDayChange(){ document.documentElement.style.setProperty('--day',dayCol(S.day)); PLAN=getPlan(S.day); S.follow=true; syncFollow(); lastKor=null; renderDays(); buildDay(S.day); renderPanel(true); renderTrack(); }
+function camHome(){ const s0=scenePos(PLAN,S.day,S.t).pos; flying={to:new THREE.Vector3(s0.x,(s0.y||0)*.6,s0.z),cam:new THREE.Vector3(s0.x+4,camera.aspect<1?40:30,s0.z+(camera.aspect<1?44:34))}; }
+function onDayChange(){ document.documentElement.style.setProperty('--day',dayCol(S.day)); PLAN=getPlan(S.day); S.follow=true; syncFollow(); lastKor=null; if(!(S.day===1&&S.t<KSW)) camHome(); renderDays(); buildDay(S.day); renderPanel(true); renderTrack(); }
 function hideStart(){ const b=$('startBtn'); if(b) b.hidden=true; }
 $('startBtn').addEventListener('click',()=>{ hideStart(); if(!S.live){ S.t=dayStartT(S.day); } S.playing=true; syncPlay(); });
 $('play').addEventListener('click',()=>{ hideStart(); if(S.live){ S.live=false; syncLive(); } S.playing=!S.playing; syncPlay(); });
@@ -955,7 +957,7 @@ function renderTrack(){ TR.min=S.day===1?300:Math.max(420,Math.floor(PLAN.start/
   PLAN.chain.forEach(r=>{ if(r.st.key==='YMCA'&&!r.stay) return; h+=`<i class="tk ${r.lv==='bad'?'bad':r.lv==='warn'?'warn':''}" style="left:${tx(r.arr)}" title="${fmt(r.arr)} ${esc(short(r.st.name))}"></i>`; });
   h+='<span class="hd" id="tHead"></span>'; const tr=$('track'); tr.innerHTML=h; tr.setAttribute('aria-valuemin',TR.min); tr.setAttribute('aria-valuemax',TR.max); syncTrack(); }
 function syncTrack(){ const f=$('tFill'); if(!f) return; const p=Math.max(0,Math.min(1,(S.t-TR.min)/(TR.max-TR.min)))*100; f.style.width=p+'%'; $('tHead').style.left=p+'%'; const tr=$('track'); tr.setAttribute('aria-valuenow',Math.round(S.t)); tr.setAttribute('aria-valuetext',fmt(S.t)); }
-function trackSet(e){ const r=$('track').getBoundingClientRect(); const f=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); S.live=false; syncLive(); S.t=TR.min+f*(TR.max-TR.min); syncTrack(); }
+function trackSet(e){ hideStart(); const r=$('track').getBoundingClientRect(); const f=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width)); S.live=false; syncLive(); S.t=TR.min+f*(TR.max-TR.min); syncTrack(); }
 let tDown=false; const trk=$('track');
 trk.addEventListener('pointerdown',e=>{ tDown=true; trk.setPointerCapture(e.pointerId); trackSet(e); });
 trk.addEventListener('pointermove',e=>{ if(tDown) trackSet(e); });
@@ -978,12 +980,12 @@ function gdir(st,m){ return `https://www.google.com/maps/dir/?api=1&destination=
 const issueHtml=iss=>iss.map(i=>`<div class="iss"><span class="chip ${i.lv}">${LVTXT[i.lv]}</span><span>${esc(i.msg)}</span></div>`).join('');
 const spotsHtml=st=>(st.spots||[]).map(s=>`<div class="spot"><span class="muted">사진</span><span><b>${esc(s.t)}</b> ${esc(s.tip)}${s.when?` <span class="muted">(${esc(s.when)})</span>`:''}</span></div>`).join('');
 let lastPanelKey='';
-function renderPanel(force){ const el0=$('panel'); if(!force&&el0.contains(document.activeElement)&&/INPUT|TEXTAREA/.test(document.activeElement.tagName)) return; const key=S.tab+'|'+S.day+'|'+Math.floor(S.t)+'|'+S.worst+'|'+S.sel+'|'+JSON.stringify(store)+'|'+JSON.stringify(S.open)+'|'+RAINON+'|'+JSON.stringify(NOTES)+'|'+JSON.stringify(NPH)+'|'+JSON.stringify(TODOS)+'|'+(SHOW_ON?1:0);
+function renderPanel(force){ const el0=$('panel'); const ae=document.activeElement; if(!force&&el0.contains(ae)&&(ae.tagName==='TEXTAREA'||(ae.tagName==='INPUT'&&/^(text|search|)$/.test(ae.type)))) return; const key=S.tab+'|'+S.day+'|'+Math.floor(S.t)+'|'+S.worst+'|'+S.sel+'|'+JSON.stringify(store)+'|'+JSON.stringify(S.open)+'|'+RAINON+'|'+JSON.stringify(NOTES)+'|'+JSON.stringify(NPH)+'|'+JSON.stringify(TODOS)+'|'+(SHOW_ON?1:0);
   if(!force&&key===lastPanelKey) return; lastPanelKey=key; if(S.live) syncLive();
   renderStrip(); const el=$('panel'), sc=el.scrollTop; el.innerHTML=S.tab==='now'?nowHtml():S.tab==='plan'?planHtml():stampHtml(); if(!force) el.scrollTop=sc; }
 function renderStrip(){ const w=where(PLAN,S.t); const st=$('strip'); if(!st) return; if(isKor()){ st.innerHTML=strip0(); return; } const lb=`<span class="lb" style="--c:${DAYC[S.day-1]}">${S.day}</span>`;
-  let h=''; if(w.phase==='before'&&w.next) h=`${lb}<span class="k">첫 역</span><b>${esc(short(w.next.st.name))}</b>${hanOf(w.next.st)}<span class="t">${fmt(w.next.arr)}</span>`;
-  else if(w.phase==='move'&&w.to) h=`${lb}<span class="k">다음</span><b>${esc(short(w.to.st.name))}</b>${hanOf(w.to.st)}<span class="t">${fmt(w.to.arr)}</span><span class="m">${Math.ceil(w.left)}분 후</span>`;
+  let h=''; if(w.phase==='before'&&w.next) h=`${lb}<span class="k">첫 역</span><b>${esc(short(w.next.st.name))}</b><span class="t">${fmt(w.next.arr)}</span>`;
+  else if(w.phase==='move'&&w.to) h=`${lb}<span class="k">다음</span><b>${esc(short(w.to.st.name))}</b><span class="t">${fmt(w.to.arr)}</span><span class="m">${Math.ceil(w.left)}분 후</span>`;
   else if(w.phase==='stay'&&w.next) h=`${lb}<span class="k">지금</span><b>${esc(short(w.at.st.name))}</b><span class="t">${fmt(w.at.dep)}</span><span class="m">출발</span>`;
   else h=`${lb}<span class="k">오늘</span><b>${S.day<4?'일정 끝, 숙소에서 쉬는 중':'집으로'}</b>`;
   st.innerHTML=h; }
@@ -1315,15 +1317,15 @@ async function ensureLogin(){ try{ const r=await fetch('/api/me',{credentials:'s
 async function apiInit(){ if(!/^https?:/.test(location.protocol)) return null; if(!(await ensureLogin())) return null; API_MODE=true;
   const L={notes:[],notephotos:[],todos:[]}, KIND={notes:'note',notephotos:'photo',todos:'todo'}; let cache=[];
   const snap=n=>({docs:cache.filter(x=>x.kind===KIND[n]).map(x=>({id:n==='notes'?x.stopId:x.id,data:()=>n==='notes'?{text:x.text,at:x.at}:n==='notephotos'?{stopId:x.stopId,assetId:x.id,at:x.at}:{day:x.day,text:x.text,done:x.done,at:x.at}}))});
-  const emit=()=>Object.keys(L).forEach(n=>L[n].forEach(f=>f(snap(n))));
+  let lastSig=''; const emit=(force)=>{ const sig=JSON.stringify(cache); if(!force&&sig===lastSig) return; lastSig=sig; Object.keys(L).forEach(n=>L[n].forEach(f=>f(snap(n)))); };
   async function refresh(){ try{ const r=await fetch('/api/records',{credentials:'same-origin'}); if(r.status===401){ await ensureLogin(); return; } if(!r.ok) return; cache=(await r.json()).records||[]; emit(); }catch(e){} }
   const call=(m,body,q)=>fetch('/api/records'+(q||''),{method:m,headers:{'content-type':'application/json'},body:body?JSON.stringify(body):undefined}).then(r=>{ if(!r.ok) throw new Error('api '+r.status); return r.json(); });
   const place=id=>{ const st=findStop(id); return st?short(st.name):(id==='d0-2'?'인천공항':''); };
   const db={ collection:n=>({ onSnapshot:cb=>{ (L[n]||(L[n]=[])).push(cb); cb(snap(n)); return ()=>{}; },
-      add:async v=>{ if(n==='todos') await call('POST',{kind:'todo',day:v.day,text:v.text,done:!!v.done}); else if(n==='notephotos') await call('PATCH',{id:v.assetId,stopId:v.stopId,place:place(v.stopId)}); await refresh(); } }),
+      add:async v=>{ if(n==='todos'){ const tmp={id:'tmp'+Date.now(),kind:'todo',day:v.day,text:v.text,done:!!v.done,at:Date.now()}; cache=cache.concat(tmp); emit(); const r=await call('POST',{kind:'todo',day:v.day,text:v.text,done:!!v.done}); tmp.id=r.id; } else if(n==='notephotos') await call('PATCH',{id:v.assetId,stopId:v.stopId,place:place(v.stopId)}); await refresh(); } }),
     doc:p=>{ const [n,id]=p.split('/'); return {
-      set:async v=>{ if(n==='notes'){ const ex=cache.find(x=>x.kind==='note'&&x.stopId===id); if(ex) await call('PATCH',{id:ex.id,text:v.text}); else await call('POST',{kind:'note',stopId:id,place:place(id),text:v.text}); } else await call('PATCH',{id,text:v.text,done:!!v.done}); await refresh(); },
-      delete:async()=>{ await call('DELETE',null,'?id='+encodeURIComponent(id)); await refresh(); } }; } };
+      set:async v=>{ if(n!=='notes'){ const t=cache.find(x=>x.id===id); if(t){ t.done=!!v.done; t.text=v.text; emit(true); } } if(n==='notes'){ const ex=cache.find(x=>x.kind==='note'&&x.stopId===id); if(ex) await call('PATCH',{id:ex.id,text:v.text}); else await call('POST',{kind:'note',stopId:id,place:place(id),text:v.text}); } else await call('PATCH',{id,text:v.text,done:!!v.done}); await refresh(); },
+      delete:async()=>{ cache=cache.filter(x=>x.id!==id); emit(); await call('DELETE',null,'?id='+encodeURIComponent(id)); await refresh(); } }; } };
   const assets={ upload:async blob=>{ const r=await fetch('/api/photo',{method:'POST',headers:{'content-type':'image/jpeg'},body:blob}); if(r.status===413) throw {code:'too_large'}; if(!r.ok) throw new Error('upload'); return r.json(); }, delete:async()=>{} };
   await refresh(); setInterval(()=>{ if(!document.hidden) refresh(); },20000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refresh(); });
   return {db,assets}; }
@@ -1334,8 +1336,8 @@ async function apiInit(){ if(!/^https?:/.test(location.protocol)) return null; i
   else { const api=await apiInit(); if(!api) return; capDb=api.db; capAssets=api.assets; }
   if(capDb){ try{ capDb.collection('photos').onSnapshot(snap=>{ Object.keys(PHOTOS).forEach(k=>delete PHOTOS[k]); snap.docs.forEach(d=>{ const v=d.data(); if(v&&v.assetId) PHOTOS[d.id]={assetId:String(v.assetId)}; }); Object.keys(PHOTOS).forEach(loadImg); if(VID.on) renderPhotoList(); },()=>{}); }catch(e){} }
   if(capDb){ try{ capDb.collection('notes').onSnapshot(snap=>{ NOTES={}; snap.docs.forEach(d=>{ const v=d.data(); if(v) NOTES[d.id]={text:String(v.text||''),at:+v.at||0}; }); renderPanel(); },()=>{}); }catch(e){}
-    try{ capDb.collection('notephotos').onSnapshot(snap=>{ NPH={}; snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(v=>v.assetId&&v.stopId).sort((a,b)=>(a.at||0)-(b.at||0)).forEach(v=>{ (NPH[v.stopId]=NPH[v.stopId]||[]).push({id:v.id,assetId:String(v.assetId)}); }); renderPanel(true); },()=>{}); }catch(e){}
-    try{ capDb.collection('todos').onSnapshot(snap=>{ TODOS=snap.docs.map(d=>{ const v=d.data()||{}; return {id:d.id,day:+v.day||0,text:String(v.text||''),done:!!v.done,at:+v.at||0}; }).filter(t=>t.text).sort((a,b)=>a.at-b.at); renderPanel(true); },()=>{}); }catch(e){} renderPanel(true); }
+    try{ capDb.collection('notephotos').onSnapshot(snap=>{ NPH={}; snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(v=>v.assetId&&v.stopId).sort((a,b)=>(a.at||0)-(b.at||0)).forEach(v=>{ (NPH[v.stopId]=NPH[v.stopId]||[]).push({id:v.id,assetId:String(v.assetId)}); }); renderPanel(); },()=>{}); }catch(e){}
+    try{ capDb.collection('todos').onSnapshot(snap=>{ TODOS=snap.docs.map(d=>{ const v=d.data()||{}; return {id:d.id,day:+v.day||0,text:String(v.text||''),done:!!v.done,at:+v.at||0}; }).filter(t=>t.text).sort((a,b)=>a.at-b.at); renderPanel(); },()=>{}); }catch(e){} renderPanel(true); }
   if(VID.on) renderSetup(); })();
 
 new ResizeObserver(resize).observe(view); resize();
