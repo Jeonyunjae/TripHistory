@@ -285,6 +285,8 @@ ol.plan{margin-top:2px}
 @media (max-width:959px){ header.top .days{grid-template-columns:repeat(5,1fr)!important;gap:4px} .daybtn{padding:4px 2px;gap:4px;font-size:12.5px;justify-content:center} .daybtn .lb{min-width:22px;height:22px;font-size:12px} }
 @media (max-width:520px){ .daybtn .wd{display:none} }
 .whos{display:grid;gap:8px}
+.startbtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;display:flex;align-items:center;gap:10px;min-height:56px;padding:0 26px 0 18px;border:0;border-radius:28px;background:#1F2A44;color:#FFFFFF;font-family:var(--f-head);font-size:18px;font-weight:900;box-shadow:0 6px 24px rgba(31,42,68,.35)}
+.startbtn span{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#E0784C;font-size:14px}
 .gate{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}
 .gatebox{background:var(--paper);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px;width:min(340px,100%);box-shadow:0 8px 30px rgba(31,42,68,.12)}
 .gatebox b{font-size:18px;font-weight:900}
@@ -327,9 +329,9 @@ a.btn,button.btn{min-height:40px;padding:8px 14px;font-size:14px;justify-content
   <main>
     <section class="stage" aria-label="미니어처 홍콩 지도">
       <div id="view">
-        <div class="tilt" aria-hidden="true"></div><div class="bubble" id="bubble" hidden></div>
+        <div class="tilt" aria-hidden="true"></div><button class="startbtn" id="startBtn"><span>▶</span>여행 시작</button><div class="bubble" id="bubble" hidden></div>
         <div class="plate" id="plate" aria-live="polite"><div class="band"><span id="pBand"></span><span id="pBand2"></span></div><div class="dest"><b id="pName"></b><span id="pTime"></span></div></div>
-        <div class="camctl"><button class="pill" id="follow" aria-pressed="true">따라가기</button><button class="pill" id="overview">전체 보기</button><button class="pill" id="rainBtn" aria-pressed="false">비 오면</button><button class="pill" id="speed" aria-label="재생 속도 바꾸기">속도 보통</button></div>
+        <div class="camctl"><button class="pill" id="follow" aria-pressed="true">따라가기</button><button class="pill" id="overview">전체 보기</button><button class="pill" id="rainBtn" aria-pressed="false">비 오면</button><button class="pill" id="speed" aria-label="재생 속도 바꾸기">속도 느리게</button></div>
       </div>
       <div class="timebar">
         <button class="round" id="play" aria-label="일시정지">❚❚</button>
@@ -465,7 +467,7 @@ const MODEIC={walk:'🚶',taxi:'🚕',peak:'🚋',tram:'🚋',mtr:'🚇',ferry:'
 const GMODE={walk:'walking',taxi:'driving',peak:'transit',tram:'transit',mtr:'transit',ferry:'transit',plane:'driving'};
 
 /* ---------- state ---------- */
-const S={payer:'yj',day:1,t:810,playing:!RM.matches,speed:4,live:false,worst:false,tab:'now',sel:null,follow:true,open:{}};
+const S={payer:'yj',day:1,t:810,playing:false,speed:1,live:false,worst:false,tab:'now',sel:null,follow:true,open:{}};
 function hktNow(){ const d=new Date(); const h=new Date(d.getTime()+d.getTimezoneOffset()*60000+480*60000);
   return {ds:h.getFullYear()+'-'+String(h.getMonth()+1).padStart(2,'0')+'-'+String(h.getDate()).padStart(2,'0'),min:h.getHours()*60+h.getMinutes()+h.getSeconds()/60}; }
 function checkLive(){ const n=hktNow(); const i=DATA.findIndex(d=>d.date===n.ds); return i>=0?{day:i+1,t:n.min}:null; }
@@ -938,9 +940,11 @@ function syncPlay(){ const b=$('play'); b.textContent=S.playing?'❚❚':'▶'; 
 function syncFollow(){ $('follow').setAttribute('aria-pressed',String(S.follow)); }
 function syncLive(){ const m=$('live'); m.className='live'+(S.live?' on':''); m.textContent=S.live?'● 실시간 홍콩 '+fmt(S.t):'미리보기'; }
 function renderDays(){ $('days').innerHTML=DATA.map((d,i)=>`<button class="daybtn" style="--c:${DAYC[i]}" aria-pressed="${S.day===d.n}" data-day="${d.n}"><span class="lb">${d.n}</span>${d.date.slice(5).replace('-','.')}<span class="wd"> ${d.wd}</span></button>`).join(''); }
-$('days').addEventListener('click',e=>{ const b=e.target.closest('[data-day]'); if(!b) return; S.live=false; S.day=+b.dataset.day; S.t=dayStartT(S.day); S.sel=null; onDayChange(); syncLive(); });
+$('days').addEventListener('click',e=>{ const b=e.target.closest('[data-day]'); if(!b) return; S.live=false; S.day=+b.dataset.day; S.t=dayStartT(S.day); hideStart(); S.sel=null; onDayChange(); syncLive(); });
 function onDayChange(){ document.documentElement.style.setProperty('--day',dayCol(S.day)); PLAN=getPlan(S.day); S.follow=true; syncFollow(); lastKor=null; renderDays(); buildDay(S.day); renderPanel(true); renderTrack(); }
-$('play').addEventListener('click',()=>{ if(S.live){ S.live=false; syncLive(); } S.playing=!S.playing; syncPlay(); });
+function hideStart(){ const b=$('startBtn'); if(b) b.hidden=true; }
+$('startBtn').addEventListener('click',()=>{ hideStart(); if(!S.live){ S.t=dayStartT(S.day); } S.playing=true; syncPlay(); });
+$('play').addEventListener('click',()=>{ hideStart(); if(S.live){ S.live=false; syncLive(); } S.playing=!S.playing; syncPlay(); });
 const TR={min:420,max:1410};
 function tx(m){ return ((m-TR.min)/(TR.max-TR.min)*100).toFixed(2)+'%'; }
 function renderTrack(){ TR.min=S.day===1?300:Math.max(420,Math.floor(PLAN.start/60)*60-30); TR.max=Math.min(1440,Math.ceil(((PLAN.end||1380)+45)/60)*60);
@@ -1333,7 +1337,7 @@ async function apiInit(){ if(!/^https?:/.test(location.protocol)) return null; i
   if(VID.on) renderSetup(); })();
 
 new ResizeObserver(resize).observe(view); resize();
-renderDays(); syncPlay(); syncFollow(); syncLive(); syncRain(); onDayChange();
+renderDays(); syncPlay(); syncFollow(); syncLive(); syncRain(); onDayChange(); if(S.live) hideStart(); if(S.live) hideStart();
 { const s0=scenePos(PLAN,S.day,S.t).pos; controls.target.set(s0.x,0,s0.z); camera.position.set(s0.x+4,30,s0.z+34); controls.update(); }
 requestAnimationFrame(frame);
 })();
