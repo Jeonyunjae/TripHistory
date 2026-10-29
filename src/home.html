@@ -1,0 +1,130 @@
+<title>희주 윤재의 여행</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Serif+TC:wght@700&display=swap">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("hk-theme")||"light";}catch(e){document.documentElement.dataset.theme="light";}</script>
+<style>
+/* Layout: one column of trip "tickets"; the next trip is a large boarding-pass card, past trips are compact rows. */
+:root{
+  --bg:#EEF2F6; --paper:#FFFFFF; --sunk:#F2F5F8; --ink:#1F2A44; --muted:#66738A; --line:#D8DFE8; --sun:#E0784C;
+  --f:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; --f-han:"Noto Serif TC","Songti TC",serif;
+}
+:root[data-theme="dark"]{ --bg:#10151F; --paper:#171E2B; --sunk:#1D2533; --ink:#E8EDF5; --muted:#9AA6B8; --line:#2A3445; --sun:#F29A72; color-scheme:dark }
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.55;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:8px}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px;display:flex;flex-direction:column;gap:28px}
+header{display:flex;align-items:center;gap:12px}
+header h1{margin:0;font-size:22px;font-weight:900;letter-spacing:-.02em;text-wrap:balance}
+header .sub{font-size:13px;color:var(--muted)}
+.themebtn{margin-left:auto;width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;flex:none}
+.themebtn svg{width:18px;height:18px}
+h2{margin:0 0 10px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+/* next trip: boarding pass */
+.pass{display:grid;grid-template-columns:1fr auto;background:var(--paper);border-radius:14px;overflow:hidden;box-shadow:0 2px 14px rgba(31,42,68,.08);text-decoration:none;position:relative}
+.pass .band{grid-column:1/-1;background:var(--c);color:#FFFFFF;display:flex;justify-content:space-between;align-items:center;padding:8px 18px;font-size:12.5px;font-weight:700;letter-spacing:.04em}
+.pass .main{padding:18px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.pass .ttl{font-size:26px;font-weight:900;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+.pass .ttl .e{font-size:24px}
+.pass .meta{font-size:14px;color:var(--muted)}
+.pass .line{font-size:14px}
+.pass .stub{border-left:2px dashed var(--line);padding:18px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:112px;text-align:center}
+.pass .stub b{font-size:34px;font-weight:900;line-height:1;font-variant-numeric:tabular-nums;color:var(--c)}
+.pass .stub span{font-size:12px;color:var(--muted)}
+.pass .go{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding:12px 18px;font-weight:700;font-size:14px}
+.pass .go svg{width:18px;height:18px}
+.pass:hover .go{background:var(--sunk)}
+/* past trips */
+.list{display:flex;flex-direction:column;gap:10px}
+.row{display:grid;grid-template-columns:6px 1fr auto;gap:0 14px;align-items:center;background:var(--paper);border-radius:12px;padding:14px 16px 14px 0;text-decoration:none;min-width:0}
+.row i{align-self:stretch;background:var(--c);border-radius:0 4px 4px 0}
+.row .t{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;min-width:0}
+.row .t small{font-weight:400;font-size:12.5px;color:var(--muted)}
+.row .l{grid-column:2;font-size:13.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .tag{grid-row:1/span 2;grid-column:3;font-size:12px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:3px 10px;white-space:nowrap}
+a.row:hover{background:var(--sunk)}
+.row .tag.on{color:var(--paper);background:var(--ink);border-color:var(--ink)}
+.empty{color:var(--muted);font-size:14px;background:var(--paper);border-radius:12px;padding:16px}
+.foot{font-size:12px;color:var(--muted)}
+/* login */
+.gate{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px}
+.gatebox{background:var(--paper);border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:12px;width:min(340px,100%);box-shadow:0 8px 30px rgba(31,42,68,.12)}
+.gatebox b{font-size:18px;font-weight:900}
+.gatebox input[type=password]{min-height:44px;border:1px solid var(--line);border-radius:8px;padding:0 12px;background:var(--paper);color:var(--ink);font:inherit}
+.who2{display:flex;gap:8px} .who2 label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;border:1px solid var(--line);border-radius:8px;cursor:pointer}
+.who2 label:has(input:checked){border-color:var(--ink);font-weight:700}
+.btn{min-height:44px;border:0;border-radius:8px;background:var(--ink);color:var(--paper);font-weight:700}
+.muted{color:var(--muted)} .sm{font-size:13px}
+@media (max-width:480px){ .pass{grid-template-columns:1fr} .pass .stub{border-left:0;border-top:2px dashed var(--line);flex-direction:row;gap:10px;padding:12px 18px;justify-content:flex-start} .pass .stub b{font-size:26px} .pass .ttl{font-size:22px} }
+</style>
+
+<div class="wrap">
+  <header>
+    <div><h1>희주 윤재의 여행</h1><div class="sub" id="who"></div></div>
+    <button class="themebtn" id="themeBtn" aria-label="어두운 화면으로"></button>
+  </header>
+  <section id="upcoming"><h2>다가오는 여행</h2><div id="next"></div></section>
+  <section><h2>지난 여행</h2><div class="list" id="past"></div></section>
+  <p class="foot" id="src"></p>
+</div>
+
+<div class="gate" id="gate" hidden><form id="gateForm" class="gatebox"><b>희주 윤재 두번째 여행</b><span class="muted sm">둘만 보는 페이지예요</span><div class="who2"><label><input type="radio" name="gateWho" value="희주" checked> 희주</label><label><input type="radio" name="gateWho" value="윤재"> 윤재</label></div><input type="password" id="gatePw" inputmode="numeric" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호"><button class="btn" type="submit">들어가기</button><span class="sm muted" id="gateMsg" aria-live="polite"></span></form></div>
+
+<script id="trips-static" type="application/json">__TRIPS__</script>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const IC={moon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
+ sun:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+ go:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+function syncTheme(){ const d=document.documentElement.dataset.theme==='dark'; $('themeBtn').innerHTML=d?IC.sun:IC.moon; $('themeBtn').setAttribute('aria-label',d?'밝은 화면으로':'어두운 화면으로'); }
+$('themeBtn').onclick=()=>{ const r=document.documentElement; r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'; try{ localStorage.setItem('hk-theme',r.dataset.theme); }catch(e){} syncTheme(); }; syncTheme();
+
+const WD=['일','월','화','수','목','금','토'];
+const day=s=>{ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); };
+const fmtD=s=>{ if(!s) return ''; const t=day(s); return `${t.getMonth()+1}.${String(t.getDate()).padStart(2,'0')}(${WD[t.getDay()]})`; };
+const range=t=>t.end&&t.end!==t.start?`${fmtD(t.start)} – ${fmtD(t.end)}`:fmtD(t.start);
+const nights=t=>{ if(!t.start||!t.end) return ''; const n=Math.round((day(t.end)-day(t.start))/864e5); return n>0?`${n}박 ${n+1}일`:'당일'; };
+const today=()=>{ const n=new Date(); return new Date(n.getFullYear(),n.getMonth(),n.getDate()); };
+const link=t=>t.key?'/'+t.key+'/':null;
+
+function render(trips,source){
+  const now=today();
+  const up=trips.filter(t=>t.start&&day(t.end||t.start)>=now).sort((a,b)=>a.start.localeCompare(b.start));
+  const past=trips.filter(t=>!up.includes(t)).sort((a,b)=>(b.start||'').localeCompare(a.start||''));
+  const n=up[0];
+  if(n){ const dd=Math.round((day(n.start)-now)/864e5), during=dd<=0; const href=link(n);
+    $('next').innerHTML=`<${href?'a':'div'} class="pass" ${href?`href="${href}"`:''} style="--c:${n.color||'#1F2A44'}">
+      <div class="band"><span>${esc(n.place||'')}</span><span>${esc(nights(n))}</span></div>
+      <div class="main"><div class="ttl"><span class="e">${esc(n.emoji||'✈️')}</span>${esc(n.title)}</div><div class="meta">${esc(range(n))}</div>${n.oneLine?`<div class="line">${esc(n.oneLine)}</div>`:''}</div>
+      <div class="stub"><b>${during?'여행 중':'D-'+dd}</b><span>${during?'즐거운 여행 되세요':'출발까지'}</span></div>
+      <div class="go"><span>${href?'여행 페이지 열기':'페이지 준비 중'}</span>${href?IC.go:''}</div></${href?'a':'div'}>`;
+    up.slice(1).forEach(t=>past.unshift(t)); }
+  else $('next').innerHTML='<div class="empty">다음 여행을 노션 「여행 기록」에 추가하면 여기에 나타나요.</div>';
+  $('past').innerHTML=past.length?past.map(t=>{ const href=link(t); return `<${href?'a':'div'} class="row" ${href?`href="${href}"`:''} style="--c:${t.color||'#9AA6B5'}"><i></i>
+      <span class="t">${esc(t.emoji||'')} ${esc(t.title)} <small>${esc(range(t))}</small></span><span class="l">${esc(t.oneLine||t.place||'')}</span>
+      <span class="tag ${href?'on':''}">${href?'열기':esc(t.status||'기록')}</span></${href?'a':'div'}>`; }).join(''):'<div class="empty">아직 없어요.</div>';
+  $('src').textContent=source==='notion'?'노션 「여행 기록」에서 불러왔어요.':'';
+}
+
+async function me(){ try{ const r=await fetch('/api/me'); if(r.ok) return (await r.json()).who||''; if(r.status===401) return null; }catch(e){} return ''; }
+function login(){ return new Promise(res=>{ $('gate').hidden=false; $('gatePw').focus();
+  $('gateForm').onsubmit=async e=>{ e.preventDefault(); const who=(document.querySelector('input[name=gateWho]:checked')||{}).value||'희주'; $('gateMsg').textContent='확인 중…';
+    try{ const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:$('gatePw').value,who})}); if(r.ok){ $('gate').hidden=true; res(who); } else $('gateMsg').textContent='비밀번호가 달라요'; }
+    catch(err){ $('gateMsg').textContent='연결이 안 돼요. 잠시 후 다시 해주세요'; } }; }); }
+
+const STATIC=JSON.parse($('trips-static').textContent);
+(async()=>{
+  let who=await me(); if(who===null) who=await login();
+  if(who) $('who').textContent=who+'로 들어왔어요';
+  render(STATIC,'static');
+  try{ const r=await fetch('/api/trips'); if(r.ok){ const j=await r.json(); if(j.trips&&j.trips.length) render(j.trips,j.source); } }catch(e){}
+})();
+})();
+</script>

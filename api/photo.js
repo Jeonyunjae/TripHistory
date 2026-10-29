@@ -1,6 +1,6 @@
 // POST: upload one JPEG (already resized in the browser) to Notion and create a 「사진」 row.
 // GET ?id=: redirect to a fresh Notion file URL (Notion file links expire after about an hour).
-import { notion, session, json, readRaw, DS, P, KIND, TRIP, rt } from './_lib.js';
+import { notion, session, json, readRaw, DS, P, KIND, tripOf, rt } from './_lib.js';
 
 export const config = { api: { bodyParser: false } };
 const MAX = 4.3 * 1024 * 1024; // under Vercel's 4.5 MB request limit and Notion free plan's 5 MiB per file
@@ -16,7 +16,7 @@ export default async function handler(req, res) {
       fd.append('file', new Blob([buf], { type: 'image/jpeg' }), 'photo.jpg');
       await notion(`/file_uploads/${up.id}/send`, { method: 'POST', body: fd });
       const pg = await notion('/pages', { method: 'POST', body: { parent: { type: 'data_source_id', data_source_id: DS() }, properties: {
-        [P.title]: { title: rt('사진') }, [P.kind]: { select: { name: KIND.photo } }, [P.trip]: { select: { name: TRIP() } },
+        [P.title]: { title: rt('사진') }, [P.kind]: { select: { name: KIND.photo } }, [P.trip]: { select: { name: tripOf(req) } },
         [P.who]: { select: { name: s.who } }, [P.photo]: { files: [{ type: 'file_upload', file_upload: { id: up.id }, name: 'photo.jpg' }] } } } });
       return json(res, 200, { id: pg.id });
     }

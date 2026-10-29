@@ -55,4 +55,10 @@ export async function readJson(req) {
 export const P = { title: '제목', kind: '종류', stopId: '장소ID', place: '장소', day: '일차', text: '내용', done: '완료', who: '작성자', photo: '사진', trip: '여행' };
 export const KIND = { note: '메모', todo: '할 일', photo: '사진' };
 export const TRIP = () => process.env.TRIP_KEY || 'hongkong-2026';
+// Which trip a request is about: ?trip=… or body.trip, lowercase letters/digits/dashes only.
+export function tripOf(req, body) {
+  const q = new URL(req.url, 'http://x').searchParams.get('trip');
+  const t = String((body && body.trip) || q || TRIP());
+  return /^[a-z0-9-]{2,40}$/.test(t) ? t : TRIP();
+}
 export const rt = s => [{ type: 'text', text: { content: String(s ?? '').slice(0, 2000) } }];

@@ -291,6 +291,11 @@ ol.plan{margin-top:2px}
 .hlabel{display:inline-flex;align-items:center;gap:3px} .hlabel svg{width:13px;height:13px}
 .round,.stepbtn{display:flex;align-items:center;justify-content:center;padding:0}
 .spd2{display:none}
+.top h1{display:flex;align-items:center;gap:4px}
+.homelink{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:8px;color:var(--muted);margin-left:-6px} .homelink:hover{background:var(--sunk);color:var(--ink)} .homelink svg{width:20px;height:20px}
+.homeicon{display:none}
+@media (max-width:520px){ .app:has(.homeicon:not([hidden])) .daybtn .mo{display:none} .app:has(.homeicon:not([hidden])) .daybtn .wd{display:none} }
+@media (max-width:959px){ header.top .homeicon:not([hidden]){display:flex;order:-1;flex:none;width:40px;min-height:40px;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)} .homeicon svg{width:18px;height:18px} }
 /* shared (desktop too): speed lives in the time bar; track on its own row, playback centred below */
 .camctl #speed{display:none}
 .timebar{display:grid!important;grid-template-columns:1fr auto 1fr;grid-template-areas:"track track track" "clock trio speed";align-items:center;row-gap:2px;column-gap:10px;padding:6px 16px 10px}
@@ -386,7 +391,7 @@ a.btn,button.btn{min-height:40px;padding:8px 14px;font-size:14px;justify-content
 
 <div class="app">
   <header class="top">
-    <h1>홍콩 여행</h1>
+    <h1><a class="homelink" id="homeLink" href="/" hidden aria-label="여행 목록으로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></a>홍콩 여행</h1><a class="homeicon" id="homeIcon" href="/" hidden aria-label="여행 목록으로"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6.5 8 6.5M6.5 9.5V19h11V9.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <nav class="days" id="days" aria-label="일차"></nav>
     <span class="live" id="live" hidden></span><button class="themebtn" id="themeBtn" aria-label="어두운 화면으로">어둡게</button>
   </header>
@@ -1014,7 +1019,7 @@ const IC={
 function syncPlay(){ const b=$('play'); b.innerHTML=S.playing?IC.pause:IC.play; b.setAttribute('aria-label',S.playing?'일시정지':'재생'); }
 function syncFollow(){ $('follow').setAttribute('aria-pressed',String(S.follow)); }
 function syncLive(){ const m=$('live'); m.className='live'+(S.live?' on':''); m.hidden=!S.live; m.textContent=S.live?'● 실시간 홍콩 '+fmt(S.t):''; }
-function renderDays(){ $('days').innerHTML=DATA.map((d,i)=>`<button class="daybtn" style="--c:${DAYC[i]}" aria-pressed="${S.day===d.n}" data-day="${d.n}"><span class="lb">${d.n}</span>${d.date.slice(5).replace('-','.')}<span class="wd"> ${d.wd}</span></button>`).join(''); }
+function renderDays(){ $('days').innerHTML=DATA.map((d,i)=>`<button class="daybtn" style="--c:${DAYC[i]}" aria-pressed="${S.day===d.n}" data-day="${d.n}"><span class="lb">${d.n}</span><span class="dt"><span class="mo">${d.date.slice(5,7)}.</span>${d.date.slice(8)}<span class="wd"> ${d.wd}</span></span></button>`).join(''); }
 $('days').addEventListener('click',e=>{ const b=e.target.closest('[data-day]'); if(!b) return; S.live=false; S.day=+b.dataset.day; S.t=dayStartT(S.day); hideStart(); S.sel=null; onDayChange(); syncLive(); });
 function camHome(){ const s0=scenePos(PLAN,S.day,S.t).pos; flying={to:new THREE.Vector3(s0.x,(s0.y||0)*.6,s0.z),cam:new THREE.Vector3(s0.x+4,camera.aspect<1?40:30,s0.z+(camera.aspect<1?44:34))}; }
 function onDayChange(){ document.documentElement.style.setProperty('--day',dayCol(S.day)); PLAN=getPlan(S.day); S.follow=true; syncFollow(); lastKor=null; if(!(S.day===1&&S.t<KSW)) camHome(); renderDays(); buildDay(S.day); renderPanel(true); renderTrack(); }
@@ -1205,7 +1210,8 @@ const VID={on:false,playing:false,recording:false,T:0,segs:[],total:0,range:'all
 const vc=$('vcanvas'), vx=vc.getContext('2d'); const VW=720, VH=1280;
 const PHOTOS={}; const IMG={};
 let capDb=null, capAssets=null, capDl=null, API_MODE=false, API_WHO='';
-const blobUrl=a=>API_MODE?'/api/photo?id='+encodeURIComponent(a):'/_blob/'+a;
+const TRIP_KEY=(document.querySelector('meta[name=trip-key]')||{}).content||'hongkong-2026'; const TQ='trip='+encodeURIComponent(TRIP_KEY);
+const blobUrl=a=>API_MODE?'/api/photo?'+TQ+'&id='+encodeURIComponent(a):'/_blob/'+a;
 // globe scene
 const gScene=new THREE.Scene(); gScene.background=new THREE.Color('#0E1A2B');
 const gCam=new THREE.PerspectiveCamera(34,9/16,.1,500);
@@ -1409,22 +1415,22 @@ async function apiInit(){ if(!/^https?:/.test(location.protocol)) return null; i
   const L={notes:[],notephotos:[],todos:[]}, KIND={notes:'note',notephotos:'photo',todos:'todo'}; let cache=[];
   const snap=n=>({docs:cache.filter(x=>x.kind===KIND[n]).map(x=>({id:n==='notes'?x.stopId:x.id,data:()=>n==='notes'?{text:x.text,at:x.at}:n==='notephotos'?{stopId:x.stopId,assetId:x.id,at:x.at}:{day:x.day,text:x.text,done:x.done,at:x.at}}))});
   let lastSig=''; const emit=(force)=>{ const sig=JSON.stringify(cache); if(!force&&sig===lastSig) return; lastSig=sig; Object.keys(L).forEach(n=>L[n].forEach(f=>f(snap(n)))); };
-  async function refresh(){ try{ const r=await fetch('/api/records',{credentials:'same-origin'}); if(r.status===401){ await ensureLogin(); return; } if(!r.ok) return; cache=(await r.json()).records||[]; emit(); }catch(e){} }
-  const call=(m,body,q)=>fetch('/api/records'+(q||''),{method:m,headers:{'content-type':'application/json'},body:body?JSON.stringify(body):undefined}).then(r=>{ if(!r.ok) throw new Error('api '+r.status); return r.json(); });
+  async function refresh(){ try{ const r=await fetch('/api/records?'+TQ,{credentials:'same-origin'}); if(r.status===401){ await ensureLogin(); return; } if(!r.ok) return; cache=(await r.json()).records||[]; emit(); }catch(e){} }
+  const call=(m,body,q)=>fetch('/api/records'+(q?q+'&':'?')+TQ,{method:m,headers:{'content-type':'application/json'},body:body?JSON.stringify(body):undefined}).then(r=>{ if(!r.ok) throw new Error('api '+r.status); return r.json(); });
   const place=id=>{ const st=findStop(id); return st?short(st.name):(id==='d0-2'?'인천공항':''); };
   const db={ collection:n=>({ onSnapshot:cb=>{ (L[n]||(L[n]=[])).push(cb); cb(snap(n)); return ()=>{}; },
       add:async v=>{ if(n==='todos'){ const tmp={id:'tmp'+Date.now(),kind:'todo',day:v.day,text:v.text,done:!!v.done,at:Date.now()}; cache=cache.concat(tmp); emit(); const r=await call('POST',{kind:'todo',day:v.day,text:v.text,done:!!v.done}); tmp.id=r.id; } else if(n==='notephotos') await call('PATCH',{id:v.assetId,stopId:v.stopId,place:place(v.stopId)}); await refresh(); } }),
     doc:p=>{ const [n,id]=p.split('/'); return {
       set:async v=>{ if(n!=='notes'){ const t=cache.find(x=>x.id===id); if(t){ t.done=!!v.done; t.text=v.text; emit(true); } } if(n==='notes'){ const ex=cache.find(x=>x.kind==='note'&&x.stopId===id); if(ex) await call('PATCH',{id:ex.id,text:v.text}); else await call('POST',{kind:'note',stopId:id,place:place(id),text:v.text}); } else await call('PATCH',{id,text:v.text,done:!!v.done}); await refresh(); },
       delete:async()=>{ cache=cache.filter(x=>x.id!==id); emit(); await call('DELETE',null,'?id='+encodeURIComponent(id)); await refresh(); } }; } };
-  const assets={ upload:async blob=>{ const r=await fetch('/api/photo',{method:'POST',headers:{'content-type':'image/jpeg'},body:blob}); if(r.status===413) throw {code:'too_large'}; if(!r.ok) throw new Error('upload'); return r.json(); }, delete:async()=>{} };
+  const assets={ upload:async blob=>{ const r=await fetch('/api/photo?'+TQ,{method:'POST',headers:{'content-type':'image/jpeg'},body:blob}); if(r.status===413) throw {code:'too_large'}; if(!r.ok) throw new Error('upload'); return r.json(); }, delete:async()=>{} };
   await refresh(); setInterval(()=>{ if(!document.hidden) refresh(); },20000); document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refresh(); });
   return {db,assets}; }
 (async function(){ const cl=window.claude;
   if(cl&&cl.use){ try{ capDl=await cl.use('downloads'); }catch(e){}
     try{ capAssets=await cl.use('assets'); }catch(e){}
     try{ capDb=await cl.use('db'); }catch(e){} }
-  else { const api=await apiInit(); if(!api) return; capDb=api.db; capAssets=api.assets; }
+  else { const api=await apiInit(); if(!api) return; capDb=api.db; capAssets=api.assets; $('homeLink').hidden=false; $('homeIcon').hidden=false; }
   if(capDb){ try{ capDb.collection('photos').onSnapshot(snap=>{ Object.keys(PHOTOS).forEach(k=>delete PHOTOS[k]); snap.docs.forEach(d=>{ const v=d.data(); if(v&&v.assetId) PHOTOS[d.id]={assetId:String(v.assetId)}; }); Object.keys(PHOTOS).forEach(loadImg); if(VID.on) renderPhotoList(); },()=>{}); }catch(e){} }
   if(capDb){ try{ capDb.collection('notes').onSnapshot(snap=>{ NOTES={}; snap.docs.forEach(d=>{ const v=d.data(); if(v) NOTES[d.id]={text:String(v.text||''),at:+v.at||0}; }); renderPanel(); },()=>{}); }catch(e){}
     try{ capDb.collection('notephotos').onSnapshot(snap=>{ NPH={}; snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(v=>v.assetId&&v.stopId).sort((a,b)=>(a.at||0)-(b.at||0)).forEach(v=>{ (NPH[v.stopId]=NPH[v.stopId]||[]).push({id:v.id,assetId:String(v.assetId)}); }); renderPanel(); },()=>{}); }catch(e){}

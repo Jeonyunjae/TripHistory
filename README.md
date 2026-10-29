@@ -6,14 +6,18 @@
 ## 구조
 
 ```
-index.html          빌드된 웹페이지 (tools/build.py 가 src/ 로 만듦)
-src/template.html   화면·3D 엔진 소스
-src/data.json       일정 데이터
-geo/                홍콩 지형 데이터
+index.html                  홈: 여행 목록 (빌드 결과)
+hongkong-2026/index.html    여행 페이지 (빌드 결과)
+src/home.html               홈 화면 소스
+src/template.html           여행 페이지(3D 엔진) 소스 — 모든 여행이 같이 씀
+src/trips.json              노션 여행 행 ↔ 웹 페이지 주소·지형·색 연결표
+trips/<여행키>/data.json    여행별 일정 데이터
+geo/<도시>/                 도시별 지형 데이터
 api/                Vercel 서버 함수 (의존성 없음, Node 20+)
   login.js          비밀번호 확인 → 로그인 쿠키
   me.js             로그인 상태 확인
-  records.js        메모·할 일·사진 기록 목록/추가/수정/삭제 (노션 DB 행)
+  records.js        메모·할 일·사진 기록 목록/추가/수정/삭제 (노션 DB 행, ?trip=여행키 로 구분)
+  trips.js          홈의 여행 목록 (노션 「여행 기록」 DB)
   photo.js          사진 업로드(노션 파일 업로드) / 사진 보기(만료되는 노션 주소를 매번 새로 받아 넘김)
 ```
 
@@ -25,7 +29,8 @@ api/                Vercel 서버 함수 (의존성 없음, Node 20+)
 | `NOTION_DATA_SOURCE_ID` | 노션 「기록」 DB의 데이터 소스 ID |
 | `APP_PASSWORD` | 둘만 아는 비밀번호 |
 | `SESSION_SECRET` | 아무 긴 임의 문자열 (로그인 쿠키 서명용) |
-| `TRIP_KEY` | `hongkong-2026` (여행 구분용, 기본값) |
+| `NOTION_TRIPS_DATA_SOURCE_ID` | 노션 「여행 기록」 DB 데이터 소스 ID (`e2e7678e-5204-4e34-8a51-f51ce46f3e2e`) — 없으면 src/trips.json 값으로 표시 |
+| `TRIP_KEY` | 기본 여행 키 (`hongkong-2026`) |
 
 토큰과 비밀번호는 절대 코드에 넣지 않습니다.
 
@@ -40,9 +45,16 @@ api/                Vercel 서버 함수 (의존성 없음, Node 20+)
 - 노션 무료 요금제는 API 업로드가 파일당 5MB. 웹에서 올릴 때 긴 변 1600px JPEG로 자동 축소합니다.
 - 노션 API는 초당 약 3회 제한이라 서버가 목록을 10초 캐시하고, 화면은 20초마다 새로 받습니다.
 
+## 새 여행 추가
+
+1. 노션 「여행 기록」에 여행 행 추가 (홈에 바로 나타남)
+2. 웹 페이지를 만들 여행이면 `src/trips.json`에 `key`·`geo`·`color` 추가, `trips/<key>/data.json`·`geo/<도시>/` 준비
+3. `python3 tools/build.py` → dev 브랜치에 push → 미리보기 확인 → main에 합치기
+
 ## 수정 후 다시 만들기
 
 ```
 python3 tools/build.py   # src/ → index.html
-git commit -am "..." && git push   # Vercel이 자동 배포
+git commit -am "..." && git push origin dev   # 미리보기 주소로 확인
+# 확인 후 main에 합치면 실제 서비스에 배포
 ```

@@ -1,0 +1,6 @@
+[
+  { "notionId": "3cfd066504ec81c3a3afcc4818d67d26", "key": "hongkong-2026", "geo": "hongkong", "color": "#D9443B",
+    "fallback": { "title": "홍콩 여행", "place": "홍콩", "emoji": "🇭🇰", "start": "2026-12-04", "end": "2026-12-07", "status": "예정", "oneLine": "" } },
+  { "notionId": "3b2d066504ec815689e9cf5f81cb6190", "key": null, "color": "#E0784C",
+    "fallback": { "title": "제주여행", "place": "제주도", "emoji": "🍊", "start": "2026-07-20", "end": "2026-07-22", "status": "완료", "oneLine": "두번째 제주 여행 — 애월·한림 숙소, 물놀이(판포포구/코난해변), 만장굴·비밀의숲 관광" } }
+]
