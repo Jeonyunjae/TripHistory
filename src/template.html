@@ -285,6 +285,10 @@ ol.plan{margin-top:2px}
 @media (max-width:959px){ header.top .days{grid-template-columns:repeat(5,1fr)!important;gap:4px} .daybtn{padding:4px 2px;gap:4px;font-size:12.5px;justify-content:center} .daybtn .lb{min-width:22px;height:22px;font-size:12px} }
 @media (max-width:520px){ .daybtn .wd{display:none} }
 .whos{display:grid;gap:8px}
+.handle{flex-direction:column;align-items:center;gap:4px}
+.hlabel{font-size:11.5px;color:var(--muted);font-weight:500;letter-spacing:.02em}
+@media (min-width:960px){ .hlabel{display:none} }
+@media (max-width:959px){ .sheet.open{height:62%} }
 /* page itself never pans sideways or pinch-zooms; only the 3D map takes pinch/drag */
 html,body{overflow-x:hidden;overscroll-behavior:none;touch-action:pan-y}
 .app,.sheet,.panel{touch-action:pan-y}
@@ -350,7 +354,7 @@ a.btn,button.btn{min-height:40px;padding:8px 14px;font-size:14px;justify-content
       </div>
     </section>
     <aside class="sheet" id="sheet">
-      <button class="handle" id="handle" aria-label="정보 창 펼치기"></button>
+      <button class="handle" id="handle" aria-label="정보 창 펼치기"><span class="hlabel" id="hlabel">일정 펼치기 ▴</span></button>
       <div class="strip" id="strip" role="button" tabindex="0" aria-label="다음 장소, 눌러서 정보 창 펼치기"></div>
       <div class="seg" role="tablist">
         <button role="tab" id="tab-now" aria-selected="true">지금</button>
@@ -979,13 +983,18 @@ const SPEEDS=[[1,'느리게'],[4,'보통'],[15,'빠르게']]; $('speed').addEven
 $('follow').addEventListener('click',()=>{ S.follow=!S.follow; syncFollow(); flying=null; });
 $('overview').addEventListener('click',()=>{ flying={to:new THREE.Vector3(0,0,2),cam:new THREE.Vector3(0,74,80)}; S.follow=false; syncFollow(); });
 $('strip').addEventListener('click',()=>$('handle').click()); $('strip').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); $('handle').click(); } });
-$('handle').addEventListener('click',()=>{ const s=$('sheet'); s.classList.toggle('open'); $('handle').setAttribute('aria-label',s.classList.contains('open')?'정보 창 접기':'정보 창 펼치기'); });
+function setSheet(open){ const s=$('sheet'); s.classList.toggle('open',open); const o=s.classList.contains('open'); $('handle').setAttribute('aria-label',o?'정보 창 접기':'정보 창 펼치기'); $('hlabel').textContent=o?'지도 크게 보기 ▾':'일정 펼치기 ▴'; setTimeout(resize,280); }
+$('handle').addEventListener('click',()=>setSheet(!$('sheet').classList.contains('open')));
+// swipe down on the top of the sheet folds it, swipe up opens it
+{ let y0=null; const top=[$('handle'),$('strip')]; top.forEach(el=>{ el.addEventListener('touchstart',e=>{ y0=e.touches[0].clientY; },{passive:true}); el.addEventListener('touchend',e=>{ if(y0==null) return; const dy=e.changedTouches[0].clientY-y0; y0=null; if(Math.abs(dy)>40){ setSheet(dy<0); } },{passive:true}); }); }
+// tapping the map while the sheet is open folds it back
+renderer.domElement.addEventListener('pointerup',e=>{ if(window.innerWidth<960&&$('sheet').classList.contains('open')&&downAt&&Math.hypot(e.clientX-downAt[0],e.clientY-downAt[1])<6) setSheet(false); });
 ['now','plan','stamp'].forEach(k=>$('tab-'+k).addEventListener('click',()=>{ S.tab=k; syncTabs(); renderPanel(true); }));
 function syncRain(){ $('rainBtn').setAttribute('aria-pressed',String(RAINON)); }
 $('rainBtn').addEventListener('click',()=>{ RAINON=!RAINON; try{ localStorage.setItem('hk-rain',RAINON?'1':'0'); }catch(e){} syncRain(); PLAN=getPlan(S.day); renderTrack(); renderPanel(true); });
 function syncTabs(){ ['now','plan','stamp'].forEach(j=>$('tab-'+j).setAttribute('aria-selected',String(j===S.tab))); }
 function selectStop(id,fromMap){ S.sel=id; const st=findStop(id); if(st&&st.ll){ const p=at(st.ll); S.follow=false; syncFollow(); flyTo(p.x,p.y,p.z,34); }
-  if(fromMap){ S.tab='plan'; syncTabs(); S.open={[id]:true}; $('sheet').classList.add('open'); }
+  if(fromMap){ S.tab='plan'; syncTabs(); S.open={[id]:true}; setSheet(true); }
   renderPanel(true); if(fromMap){ const el=document.querySelector(`[data-row="${id}"]`); if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'}); } }
 const noEmo=t=>String(t||'').replace(/\p{Extended_Pictographic}\uFE0F?\s*/gu,'');
 function gdir(st,m){ return `https://www.google.com/maps/dir/?api=1&destination=${st.ll[0]},${st.ll[1]}&travelmode=${GMODE[m]||'walking'}`; }
