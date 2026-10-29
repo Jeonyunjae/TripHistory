@@ -371,7 +371,7 @@ a.btn,button.btn{min-height:40px;padding:8px 14px;font-size:14px;justify-content
 </div>
 <input type="file" id="fileIn" accept="image/*" hidden>
 <input type="file" id="noteFile" accept="image/*" multiple hidden>
-<div class="gate" id="gate" hidden><form id="gateForm" class="gatebox"><b>희주 윤재 두번째 여행</b><span class="muted sm">둘만 보는 페이지예요</span><div class="who2"><label><input type="radio" name="gateWho" value="윤재" checked> 윤재</label><label><input type="radio" name="gateWho" value="희주"> 희주</label></div><input type="password" id="gatePw" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호"><button class="btn go" type="submit">들어가기</button><span class="sm muted" id="gateMsg" aria-live="polite"></span></form></div>
+<div class="gate" id="gate" hidden><form id="gateForm" class="gatebox"><b>희주 윤재 두번째 여행</b><span class="muted sm">둘만 보는 페이지예요</span><div class="who2"><label><input type="radio" name="gateWho" value="희주" checked> 희주</label><label><input type="radio" name="gateWho" value="윤재"> 윤재</label></div><input type="password" id="gatePw" inputmode="numeric" placeholder="비밀번호" autocomplete="current-password" aria-label="비밀번호"><button class="btn go" type="submit">들어가기</button><span class="sm muted" id="gateMsg" aria-live="polite"></span></form></div>
 <div class="viewer" id="viewer" hidden role="dialog" aria-label="사진 보기"><img id="viewImg" alt=""><button class="pill" id="viewClose">닫기</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1306,7 +1306,7 @@ async function finishRecording(){
 /* ---- storage: claude.ai capabilities inside the artifact, own API (/api, Notion) on the web service ---- */
 async function ensureLogin(){ try{ const r=await fetch('/api/me',{credentials:'same-origin'}); if(r.ok){ API_WHO=(await r.json()).who||''; return true; } if(r.status!==401) return false; }catch(e){ return false; }
   return new Promise(res=>{ const g=$('gate'); g.hidden=false; $('gatePw').focus();
-    $('gateForm').onsubmit=async e=>{ e.preventDefault(); const who=(document.querySelector('input[name=gateWho]:checked')||{}).value||'윤재'; $('gateMsg').textContent='확인 중…';
+    $('gateForm').onsubmit=async e=>{ e.preventDefault(); const who=(document.querySelector('input[name=gateWho]:checked')||{}).value||'희주'; $('gateMsg').textContent='확인 중…';
       try{ const r=await fetch('/api/login',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:$('gatePw').value,who})}); if(r.ok){ API_WHO=who; g.hidden=true; res(true); } else $('gateMsg').textContent='비밀번호가 달라요'; }catch(err){ $('gateMsg').textContent='연결이 안 돼요. 잠시 후 다시 해주세요'; } }; }); }
 async function apiInit(){ if(!/^https?:/.test(location.protocol)) return null; if(!(await ensureLogin())) return null; API_MODE=true;
   const L={notes:[],notephotos:[],todos:[]}, KIND={notes:'note',notephotos:'photo',todos:'todo'}; let cache=[];
